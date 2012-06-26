@@ -9,14 +9,16 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Moxy {
 
+    // start server on this port
     int port() default 9001;
 
+    // assume we'll always be returning the same content type
     String contentType() default "text/xml";
 
     int[] statusCode() default {};
 
-    String[] responses() default {};
+    String[] response() default {};
 
-    String[] files() default {};
+    String[] file() default {};
 
 }

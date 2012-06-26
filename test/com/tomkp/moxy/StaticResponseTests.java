@@ -1,15 +1,11 @@
 package com.tomkp.moxy;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.junit.MoxyRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -20,7 +16,7 @@ public class StaticResponseTests {
 
 
     @Test
-    @Moxy(responses = {"hello"})
+    @Moxy(response = {"hello"})
     public void staticResponse() throws Exception {
         assertEquals("hello", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
 
@@ -28,7 +24,7 @@ public class StaticResponseTests {
 
 
     @Test
-    @Moxy(responses = {"hello", "goodbye"})
+    @Moxy(response = {"hello", "goodbye"})
     public void multipleResponse() throws Exception {
         URL url = new URL("http://localhost:9001");
         assertEquals("hello", Resources.toString(url, Charset.forName("UTF-8")));

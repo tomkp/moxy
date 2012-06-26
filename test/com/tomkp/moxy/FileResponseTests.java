@@ -6,6 +6,7 @@ import com.tomkp.moxy.junit.MoxyRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
@@ -16,18 +17,22 @@ public class FileResponseTests {
 
 
     @Test
-    @Moxy(files = {"hello.xml"})
+    @Moxy(file = {"hello.xml"})
     public void fileResponse() throws Exception {
-        assertEquals("<hello>Moxy</hello>", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
+        assertEquals("<hello>Moxy</hello>", readUrl());
     }
 
 
     @Test
-    @Moxy(files = {"hello.xml", "goodbye.xml"})
+    @Moxy(file = {"hello.xml", "goodbye.xml"})
     public void fileResponses() throws Exception {
-        assertEquals("<hello>Moxy</hello>", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
-        assertEquals("<goodbye>Moxy</goodbye>", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
+        assertEquals("<hello>Moxy</hello>", readUrl());
+        assertEquals("<goodbye>Moxy</goodbye>", readUrl());
     }
 
+
+    private String readUrl() throws IOException {
+        return Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
+    }
 
 }

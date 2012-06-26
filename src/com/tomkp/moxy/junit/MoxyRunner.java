@@ -31,7 +31,8 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
         if (moxyMethodAnnotation != null) {
             Server server = new Server(moxyMethodAnnotation.port());
             try {
-                server.setHandler(new RequestHandler(testClass, moxyMethodAnnotation));
+                RequestHandler handler = new RequestHandler(testClass, moxyMethodAnnotation);
+                server.setHandler(handler);
                 server.start();
                 super.runChild(method, notifier);
                 server.stop();

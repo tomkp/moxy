@@ -17,7 +17,7 @@ public class CompoundAttributesTests {
 
 
     @Test
-    @Moxy(port = 9002, responses = {"hello", "goodbye"})
+    @Moxy(port = 9002, response = {"hello", "goodbye"})
     public void specifyPortAndResponses() throws Exception {
         URL url = new URL("http://localhost:9002");
         assertEquals("hello", Resources.toString(url, Charset.forName("UTF-8")));

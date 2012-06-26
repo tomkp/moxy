@@ -15,13 +15,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RequestHandler extends AbstractHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestHandler.class);
 
-    private Class<?> testClass;
+    public static final int DEFAULT_STATUS = 200;
+
     private Moxy moxy;
+    private Class<?> testClass;
     private int index = 0;
 
 
@@ -30,21 +34,16 @@ public class RequestHandler extends AbstractHandler {
         this.moxy = moxy;
     }
 
+
     @Override
     public void handle(String path, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
         LOG.info("path: '{}'", path);
-        int[] statusCodes = moxy.statusCode();
-        if (statusCodes != null && statusCodes.length > 1) {
-            httpServletResponse.setStatus(statusCodes[index]);
-        } else if (statusCodes != null && statusCodes.length == 1) {
-            httpServletResponse.setStatus(statusCodes[0]);
-        } else {
-            httpServletResponse.setStatus(200);
-        }
+
+        setStatus(httpServletResponse);
 
         httpServletResponse.setContentType(moxy.contentType());
-        String[] responses = moxy.responses();
-        String[] files = moxy.files();
+        String[] responses = moxy.response();
+        String[] files = moxy.file();
         if (responses.length > index) {
             String response = responses[index];
             InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
@@ -58,5 +57,18 @@ public class RequestHandler extends AbstractHandler {
         }
         index++;
         request.setHandled(true);
+    }
+
+
+
+    private void setStatus(HttpServletResponse httpServletResponse) {
+        int[] statusCodes = moxy.statusCode();
+        if (statusCodes != null && statusCodes.length > 1) {
+            httpServletResponse.setStatus(statusCodes[index]);
+        } else if (statusCodes != null && statusCodes.length == 1) {
+            httpServletResponse.setStatus(statusCodes[0]);
+        } else {
+            httpServletResponse.setStatus(DEFAULT_STATUS);
+        }
     }
 }
