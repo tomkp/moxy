@@ -11,8 +11,7 @@
 
 ## Examples
 
-
-Returns _hello world_
+  Mock server running on port 9001 returns _hello world_ for all requests
 
 
 ```java
