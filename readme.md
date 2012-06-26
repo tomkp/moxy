@@ -66,6 +66,4 @@ JSON from a file
         assertEquals("{\"id\": 1, \"mood\": \"Adventurous\"}", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
     }
 
-
-
 ```
