@@ -4,9 +4,9 @@
 
 ## Usage
 
-  Annotate your test classes with ```java @RunWith(MoxyRunner.class) ```
+  Annotate your test classes with ``` @RunWith(MoxyRunner.class) ```
 
-  Annotate your tests with ```java @Moxy ```
+  Annotate your tests with ``` @Moxy ```
 
 
 ## Examples
