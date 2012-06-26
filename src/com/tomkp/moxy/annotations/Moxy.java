@@ -15,6 +15,8 @@ public @interface Moxy {
     // assume we'll always be returning the same content type
     String contentType() default "text/xml";
 
+    String proxy() default "";
+
     int[] statusCode() default {};
 
     String[] response() default {};

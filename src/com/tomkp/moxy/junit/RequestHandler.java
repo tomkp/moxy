@@ -3,6 +3,7 @@ package com.tomkp.moxy.junit;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -51,23 +52,45 @@ public class RequestHandler extends AbstractHandler {
                 throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
-            if (responses.length > index) {
-                String response = responses[index];
-                InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
-                ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+            String proxy = moxy.proxy();
+            if (!proxy.isEmpty()) {
 
-            } else if (files.length > index) {
+                InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(new URL(proxy));
+                ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
-                String filename = files[index];
-                if (filename.startsWith("/")) {
-                    InputStream inputStream = this.getClass().getResourceAsStream(filename);
-                    ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
-                } else {
+                if (files.length > 0)  {
+                    String filename = files[index];
                     URL resource = testClass.getResource(".");
                     File file = new File(resource.getPath(), filename);
-                    InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
-                    FileInputStream inputStream = inputSupplier.getInput();
+                    if (!file.exists()) {
+                        LOG.info("create file '{}'", file);
+                        Files.createParentDirs(file);
+                        boolean created = file.createNewFile();
+                        LOG.info("file '{}' created '{}'", file, created);
+                    }
+                    ByteStreams.copy(inputSupplier.getInput(), new FileOutputStream(file));
+                }
+
+            } else {
+
+                if (responses.length > index) {
+                    String response = responses[index];
+                    InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
                     ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+
+                } else if (files.length > index) {
+
+                    String filename = files[index];
+                    if (filename.startsWith("/")) {
+                        InputStream inputStream = this.getClass().getResourceAsStream(filename);
+                        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                    } else {
+                        URL resource = testClass.getResource(".");
+                        File file = new File(resource.getPath(), filename);
+                        InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
+                        FileInputStream inputStream = inputSupplier.getInput();
+                        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                    }
                 }
             }
 
@@ -77,7 +100,6 @@ public class RequestHandler extends AbstractHandler {
             request.setHandled(true);
         }
     }
-
 
 
     private void setStatus(HttpServletResponse httpServletResponse) {
