@@ -15,8 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RequestHandler extends AbstractHandler {
 
@@ -41,22 +39,43 @@ public class RequestHandler extends AbstractHandler {
 
         setStatus(httpServletResponse);
 
-        httpServletResponse.setContentType(moxy.contentType());
-        String[] responses = moxy.response();
-        String[] files = moxy.file();
-        if (responses.length > index) {
-            String response = responses[index];
-            InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
-            ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
-        } else if (files.length > index) {
-            URL resource = testClass.getResource(".");
-            File file = new File(resource.getPath() + "/" + files[index]);
-            InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
-            FileInputStream inputStream = inputSupplier.getInput();
-            ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+        try {
+
+            //httpServletResponse.addCookie();
+
+            httpServletResponse.setContentType(moxy.contentType());
+            String[] responses = moxy.response();
+            String[] files = moxy.file();
+
+            if (responses.length > 0 && files.length > 0) {
+                throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
+            }
+
+            if (responses.length > index) {
+                String response = responses[index];
+                InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
+                ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+
+            } else if (files.length > index) {
+
+                String filename = files[index];
+                if (filename.startsWith("/")) {
+                    InputStream inputStream = this.getClass().getResourceAsStream(filename);
+                    ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                } else {
+                    URL resource = testClass.getResource(".");
+                    File file = new File(resource.getPath(), filename);
+                    InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
+                    FileInputStream inputStream = inputSupplier.getInput();
+                    ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                }
+            }
+
+            index++;
+
+        } finally {
+            request.setHandled(true);
         }
-        index++;
-        request.setHandled(true);
     }
 
 
