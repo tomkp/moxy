@@ -31,6 +31,13 @@ public class FileResponseTests {
     }
 
 
+    @Test
+    @Moxy(file = {"/scripts/absolute.xml"})
+    public void absolutePathFileResponse() throws Exception {
+        assertEquals("<absolute>Moxy</absolute>", readUrl());
+    }
+
+
     private String readUrl() throws IOException {
         return Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
     }
