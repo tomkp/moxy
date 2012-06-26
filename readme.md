@@ -12,16 +12,15 @@ public class Examples {
 
 
     @Test
-    @Moxy(response = {"hello"})
-    public void staticResponse() throws Exception {
+    @Moxy(response = "hello")
+    public void singleResponse() throws Exception {
         assertEquals("hello", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
-
     }
 
 
     @Test
     @Moxy(response = {"hello", "goodbye"})
-    public void multipleResponse() throws Exception {
+    public void multipleResponses() throws Exception {
         URL url = new URL("http://localhost:9001");
         assertEquals("hello", Resources.toString(url, Charset.forName("UTF-8")));
         assertEquals("goodbye", Resources.toString(url, Charset.forName("UTF-8")));
