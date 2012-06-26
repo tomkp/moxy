@@ -63,7 +63,6 @@ public class RequestHandler extends AbstractHandler {
                     URL resource = testClass.getResource(".");
                     File file = new File(resource.getPath(), filename);
                     if (!file.exists()) {
-                        LOG.info("create file '{}'", file);
                         Files.createParentDirs(file);
                         boolean created = file.createNewFile();
                         LOG.info("file '{}' created '{}'", file, created);
@@ -74,6 +73,7 @@ public class RequestHandler extends AbstractHandler {
             } else {
 
                 if (responses.length > index) {
+
                     String response = responses[index];
                     InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
                     ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
