@@ -59,7 +59,7 @@ JSON response
 
 ```
 
-JSON from a file
+JSON from a relative file
 
 
 ```java
@@ -68,6 +68,22 @@ JSON from a file
     @Moxy(file = "example.json", contentType = "application/json")
     public void fileResponse() throws Exception {
         assertEquals("{\"id\": 1, \"mood\": \"Adventurous\"}", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
+    }
+
+```
+
+
+XML from absolute files
+
+
+```java
+
+    @Test
+    @Moxy(file = {"/scripts/example1.xml", "/scripts/example2.xml"})
+    public void fileResponses() throws Exception {
+        URL url = new URL("http://localhost:9001");
+        assertEquals("<example>ONE</example>", Resources.toString(url, Charset.forName("UTF-8")));
+        assertEquals("<example>TWO</example>", Resources.toString(url, Charset.forName("UTF-8")));
     }
 
 ```

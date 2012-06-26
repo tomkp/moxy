@@ -44,4 +44,12 @@ public class Examples {
     }
 
 
+    @Test
+    @Moxy(file = {"/scripts/example1.xml", "/scripts/example2.xml"})
+    public void fileResponses() throws Exception {
+        URL url = new URL("http://localhost:9001");
+        assertEquals("<example>ONE</example>", Resources.toString(url, Charset.forName("UTF-8")));
+        assertEquals("<example>TWO</example>", Resources.toString(url, Charset.forName("UTF-8")));
+    }
+
 }
