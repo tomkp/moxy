@@ -3,24 +3,33 @@
   Moxy is for those times when you are __absolutely convinced__ that you need to run integration tests against a server.
 
 
+
 ## Examples
 
 
-Returning strings
+Returns _hello world_
 
 
 ```java
 
 @RunWith(MoxyRunner.class)
-public class Examples {
+public class Example {
 
 
     @Test
-    @Moxy(response = "hello")
+    @Moxy(response = "hello world")
     public void singleResponse() throws Exception {
         assertEquals("hello", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
     }
 
+}
+
+```
+
+Multiple responses
+
+
+```java
 
     @Test
     @Moxy(response = {"hello", "goodbye"})
@@ -30,37 +39,33 @@ public class Examples {
         assertEquals("goodbye", Resources.toString(url, Charset.forName("UTF-8")));
     }
 
-}
-
-```
+ ```
 
 
-
-
-Returning json
+JSON response
 
 
 ```java
 
-
-@RunWith(MoxyRunner.class)
-public class JsonResponseTests {
-
-
     @Test
-    @Moxy(response = "{\"id\": 1, \"created\": 1339714800000, \"mood\": \"Adventurous\"}", contentType = "application/json")
+    @Moxy(response = "{\"id\": 1, \"mood\": \"Adventurous\"}", contentType = "application/json")
     public void staticResponse() throws Exception {
-        assertEquals("{\"id\": 1, \"created\": 1339714800000, \"mood\": \"Adventurous\"}", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
+        assertEquals("{\"id\": 1, \"mood\": \"Adventurous\"}", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
     }
 
+```
+
+JSON from a file
+
+
+```java
 
     @Test
     @Moxy(file = "example.json", contentType = "application/json")
     public void fileResponse() throws Exception {
-        assertEquals("{\"id\": 1, \"created\": 1339714800000, \"mood\": \"Adventurous\"}", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
+        assertEquals("{\"id\": 1, \"mood\": \"Adventurous\"}", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
     }
 
-}
 
 
 ```
