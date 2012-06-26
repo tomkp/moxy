@@ -18,12 +18,12 @@ Returns _hello world_
 ```java
 
 @RunWith(MoxyRunner.class)
-public class Example {
+public class Examples {
 
     @Test
     @Moxy(response = "hello world")
     public void singleResponse() throws Exception {
-        assertEquals("hello", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
+        assertEquals("hello world", Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8")));
     }
 
 }
