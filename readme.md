@@ -2,6 +2,11 @@
 
   Moxy is for those times when you are __absolutely convinced__ that you need to run integration tests against a server.
 
+## Usage
+
+  Annotate your test classes with ```java @RunWith(MoxyRunner.class) ```
+
+  Annotate your tests with ```java @Moxy ```
 
 
 ## Examples
@@ -14,7 +19,6 @@ Returns _hello world_
 
 @RunWith(MoxyRunner.class)
 public class Example {
-
 
     @Test
     @Moxy(response = "hello world")
