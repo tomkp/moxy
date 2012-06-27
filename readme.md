@@ -8,10 +8,48 @@
 
   Annotate your tests with ``` @Moxy ```
 
+## Configuration
+
+  You can configure the response body and headers.
+
+  For the response body use either
+
+  - ```response``` this allows you to inline your response
+  - ```file``` the response body is loaded from a file (using either a relative or absolute path)
+
+  Response headers
+
+  - ```contentType``` the content type, the default is```text/plain```
+  - ```statusCode``` the HTTP status code, the default is ```200```
+
+  Wherever multiple values can be given the following logic will be used:
+
+  - 0: use default value
+  - 1: always return this value
+  - x: a value for each request
+
+  eg:
+
+  ```@Moxy(statusCode = {500, 500, 200})``` - the first 2 request will get back status code ```500```, the third request will get a ```200```
+  ```@Moxy(statusCode = 404)``` - all requests will get a ```404```
+  ```@Moxy``` - all request will get the default status code ```200```
+
+
+
+## Why you shouldn't use Moxy
+
+  Before using Moxy you should really ask yourself it is truely necessary.
+
+  Can you refactor the code and mock out the dependency instead?
+
+  Although you are using JUnit, you are not writing an actual unit test - and although the overhead is low it's still going to run a lot slower than an actual unit test.
+
+  If you insist on using Moxy - then keep the tests to a minimum.
+
 
 ## Examples
 
-  Mock server running on port 9001 returns ``` hello world ``` for all requests
+  Mock server running on port 9001 returns ```hello world``` for all requests
 
 
 ```java

@@ -1,4 +1,4 @@
-package com.tomkp.moxy.junit;
+package com.tomkp.moxy;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -42,8 +43,6 @@ public class RequestHandler extends AbstractHandler {
         setStatus(httpServletResponse);
 
         try {
-
-            //httpServletResponse.addCookie();
 
             setContentType(httpServletResponse);
 
@@ -137,4 +136,33 @@ public class RequestHandler extends AbstractHandler {
             httpServletResponse.setContentType("text/plain");
         }
     }
+
+
+    private void addCookie(HttpServletResponse httpServletResponse) {
+        String[] cookies = moxy.cookie();
+        if (cookies != null && cookies.length > 1) {
+            String cookie = cookies[index];
+            httpServletResponse.addCookie(createCookie(cookie));
+        } else if (cookies != null && cookies.length == 1) {
+            String cookie = cookies[0];
+            httpServletResponse.addCookie(createCookie(cookie));
+        }
+    }
+
+
+    //Set-Cookie: PubAuth1=134240759%2C134240757%2C134240754%2C%2B255084548049850%2C%2B114347059694522%2C%2B0%2C3472674174%2C1060798794%2CtEe9tPJ9pawRIWDHIn47sg; path=/; expires=Thu, 14-Aug-2003 04:19:54 GMT; secure\n" +
+    /*
+    // Escape regexp special characters (thanks kangax!)
+    name = name.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+
+    var regex = new RegExp('(?:^|;)\\s?' + name + '=(.*?)(?:;|$)','i'),
+        match = document.cookie.match(regex);
+
+    return match && unescape(match[1]); // thanks James!
+     */
+    private Cookie createCookie(String cookieString) {
+        return new Cookie();
+    }
+
+
 }
