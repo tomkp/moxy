@@ -37,7 +37,6 @@ public class ProxyTests {
         Resources.toString(new URL("http://localhost:9001/robots.txt"), Charset.forName("UTF-8"));
         assertTrue(file.exists());
         assertTrue(Files.readFirstLine(file, Charset.forName("UTF-8")).startsWith("User-agent: *"));
-
     }
 
 
@@ -55,4 +54,15 @@ public class ProxyTests {
         assertTrue(Files.readFirstLine(robotsFile, Charset.forName("UTF-8")).startsWith("User-agent: *"));
         assertTrue(Files.readFirstLine(siteMapFile, Charset.forName("UTF-8")).startsWith("Google is built"));
     }
+
+
+    @Test
+    @Moxy(proxy = "http://www.apple.com")
+    public void proxyWithQueryString() throws Exception {
+        URL url = new URL("http://localhost:9001/search/?q=ipod");
+        String response = Resources.toString(url, Charset.forName("UTF-8"));
+        assertTrue(response.contains("Search Results"));
+    }
+
+
 }

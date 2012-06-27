@@ -63,6 +63,8 @@ public class RequestHandler extends AbstractHandler {
                 LOG.info("queryString: '{}'", queryString);
                 if (queryString == null) {
                     queryString = "";
+                } else {
+                    queryString = "?" + queryString;
                 }
                 URL url = new URL(proxy + pathInfo + queryString);
                 LOG.info("proxy to '{}'", url);
