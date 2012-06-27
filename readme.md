@@ -1,12 +1,12 @@
-# Moxy
+# ```Moxy```
 
   Moxy is for those times when you are __absolutely convinced__ that you need to run integration tests against a server.
 
 ## Usage
 
-  Annotate your test classes with ``` @RunWith(MoxyRunner.class) ```
+  Annotate your test classes with ```@RunWith(MoxyRunner.class)```
 
-  Annotate your tests with ``` @Moxy ```
+  Annotate your tests with ```@Moxy```
 
 ## Configuration
 
