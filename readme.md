@@ -42,7 +42,7 @@
 
 ## Why you shouldn't use Moxy
 
-  Before using Moxy you should really ask yourself it is truely necessary.
+  Before using Moxy you should ask yourself if it is truly necessary.
 
   Can you refactor the code and mock out the dependency instead?
 
