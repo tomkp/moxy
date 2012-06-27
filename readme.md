@@ -33,7 +33,9 @@
   eg:
 
   ```@Moxy(statusCode = {500, 500, 200})``` - the first 2 request will get back status code ```500```, the third request will get a ```200```
+
   ```@Moxy(statusCode = 404)``` - all requests will get a ```404```
+
   ```@Moxy``` - all request will get the default status code ```200```
 
 
