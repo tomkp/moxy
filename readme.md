@@ -147,3 +147,23 @@ Capture responses when proxying
 
 ```
 
+
+Multiple content types;
+
+
+```java
+
+    @Test
+    @Moxy(contentType = {"application/json", "text/xml"})
+    public void multipleContentTypes() throws Exception {
+        HttpURLConnection connection;
+        URL url = new URL("http://localhost:9001");
+
+        connection = (HttpURLConnection) (url.openConnection());
+        assertEquals("application/json", connection.getContentType());
+
+        connection = (HttpURLConnection) (url.openConnection());
+        assertEquals("text/xml", connection.getContentType());
+    }
+
+```
