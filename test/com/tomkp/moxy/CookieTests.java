@@ -15,32 +15,12 @@ public class CookieTests {
 
 
     @Test
-    @Moxy
-    public void contentTypeDefaultIsTextPlain() throws Exception {
+    @Moxy(cookie = "Set-Cookie: PubAuth1=134240759%2C134240757%2C134240754%2C%2B255084548049850%2C%2B114347059694522%2C%2B0%2C3472674174%2C1060798794%2CtEe9tPJ9pawRIWDHIn47sg; path=/; expires=Thu, 14-Aug-2003 04:19:54 GMT; secure")
+    public void setsCookie() throws Exception {
         HttpURLConnection connection = (HttpURLConnection) (new URL("http://localhost:9001").openConnection());
-        assertEquals("text/plain", connection.getContentType());
+        String cookie = connection.getHeaderField("Set-Cookie");
+        System.out.println(cookie);
     }
 
-
-    @Test
-    @Moxy(contentType = "application/json")
-    public void contentTypeIsConfigurable() throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) (new URL("http://localhost:9001").openConnection());
-        assertEquals("application/json", connection.getContentType());
-    }
-
-
-    @Test
-    @Moxy(contentType = {"application/json", "text/xml"})
-    public void multipleContentTypes() throws Exception {
-        HttpURLConnection connection;
-        URL url = new URL("http://localhost:9001");
-
-        connection = (HttpURLConnection) (url.openConnection());
-        assertEquals("application/json", connection.getContentType());
-
-        connection = (HttpURLConnection) (url.openConnection());
-        assertEquals("text/xml", connection.getContentType());
-    }
 
 }

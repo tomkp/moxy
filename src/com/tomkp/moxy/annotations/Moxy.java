@@ -18,6 +18,8 @@ public @interface Moxy {
 
     int[] statusCode() default {};
 
+    String[] cookie() default {};
+
     String[] response() default {};
 
     String[] file() default {};

@@ -15,14 +15,18 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.HttpCookie;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RequestHandler extends AbstractHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestHandler.class);
 
     public static final int DEFAULT_STATUS = 200;
+    private static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
     private Moxy moxy;
     private Class<?> testClass;
@@ -38,9 +42,11 @@ public class RequestHandler extends AbstractHandler {
     @Override
     public void handle(String path, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
 
-        LOG.info("path: '{}'", path);
+        LOG.info("handle request, method '{}', path '{}'", httpServletRequest.getMethod(), path);
 
         setStatus(httpServletResponse);
+
+        addCookies(httpServletResponse);
 
         try {
 
@@ -133,35 +139,44 @@ public class RequestHandler extends AbstractHandler {
         } else if (contentTypes != null && contentTypes.length == 1) {
             httpServletResponse.setContentType(contentTypes[0]);
         } else {
-            httpServletResponse.setContentType("text/plain");
+            httpServletResponse.setContentType(DEFAULT_CONTENT_TYPE);
         }
     }
 
 
-    private void addCookie(HttpServletResponse httpServletResponse) {
+    private void addCookies(HttpServletResponse httpServletResponse) {
         String[] cookies = moxy.cookie();
         if (cookies != null && cookies.length > 1) {
             String cookie = cookies[index];
-            httpServletResponse.addCookie(createCookie(cookie));
+            LOG.info("cookie: '{}'", cookie);
+            List<Cookie> httpCookies = createCookies(cookie);
+            for (Cookie httpCookie : httpCookies) {
+                httpServletResponse.addCookie(httpCookie);
+            }
         } else if (cookies != null && cookies.length == 1) {
             String cookie = cookies[0];
-            httpServletResponse.addCookie(createCookie(cookie));
+            LOG.info("cookie: '{}'", cookie);
+            List<Cookie> httpCookies = createCookies(cookie);
+            for (Cookie httpCookie : httpCookies) {
+                httpServletResponse.addCookie(httpCookie);
+            }
         }
     }
 
 
-    //Set-Cookie: PubAuth1=134240759%2C134240757%2C134240754%2C%2B255084548049850%2C%2B114347059694522%2C%2B0%2C3472674174%2C1060798794%2CtEe9tPJ9pawRIWDHIn47sg; path=/; expires=Thu, 14-Aug-2003 04:19:54 GMT; secure\n" +
-    /*
-    // Escape regexp special characters (thanks kangax!)
-    name = name.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 
-    var regex = new RegExp('(?:^|;)\\s?' + name + '=(.*?)(?:;|$)','i'),
-        match = document.cookie.match(regex);
-
-    return match && unescape(match[1]); // thanks James!
-     */
-    private Cookie createCookie(String cookieString) {
-        return new Cookie();
+    private List<Cookie> createCookies(String cookieString) {
+        List<HttpCookie> httpCookies = HttpCookie.parse(cookieString);
+        List<Cookie> cookies = new ArrayList<Cookie>();
+        for (HttpCookie httpCookie : httpCookies) {
+            Cookie cookie = new Cookie(httpCookie.getName(), httpCookie.getValue());
+            cookie.setPath(httpCookie.getPath());
+            cookie.setMaxAge((int) httpCookie.getMaxAge());
+            cookie.setSecure(httpCookie.getSecure());
+            LOG.info("cookie: '{}'", cookie);
+            cookies.add(cookie);
+        }
+        return cookies;
     }
 
 

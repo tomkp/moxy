@@ -1,5 +1,6 @@
 package com.tomkp.moxy.junit;
 
+import com.tomkp.moxy.RequestHandler;
 import com.tomkp.moxy.annotations.Moxy;
 import org.eclipse.jetty.server.Server;
 import org.junit.runner.notification.RunNotifier;
