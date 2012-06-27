@@ -12,12 +12,14 @@
 
   You can configure the response body and headers.
 
-  For the response body use either
+### response body
+
+  There are two ways of responding. You can either load the response from a file, or you can inline the response n the annotation.
 
   - ```response``` this allows you to inline your response
   - ```file``` the response body is loaded from a file (using either a relative or absolute path)
 
-  Response headers
+### response headers
 
   - ```contentType``` the content type, the default is```text/plain```
   - ```statusCode``` the HTTP status code, the default is ```200```
