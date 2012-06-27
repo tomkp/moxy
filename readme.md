@@ -86,3 +86,18 @@ XML from absolute files
     }
 
 ```
+
+
+Use Moxy as a proxy
+
+
+```java
+
+    @Test
+    @Moxy(proxy = "http://www.google.com/robots.txt")
+    public void proxyToGoogle() throws Exception {
+        String response = Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
+        assertTrue(response.startsWith("User-agent: *"));
+    }
+
+```

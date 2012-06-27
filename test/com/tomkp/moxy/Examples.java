@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MoxyRunner.class)
 public class Examples {
@@ -50,6 +51,14 @@ public class Examples {
         URL url = new URL("http://localhost:9001");
         assertEquals("<example>ONE</example>", Resources.toString(url, Charset.forName("UTF-8")));
         assertEquals("<example>TWO</example>", Resources.toString(url, Charset.forName("UTF-8")));
+    }
+
+
+    @Test
+    @Moxy(proxy = "http://www.google.com/robots.txt")
+    public void proxyToGoogle() throws Exception {
+        String response = Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
+        assertTrue(response.startsWith("User-agent: *"));
     }
 
 }
