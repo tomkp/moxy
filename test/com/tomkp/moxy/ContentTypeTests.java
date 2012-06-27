@@ -16,9 +16,9 @@ public class ContentTypeTests {
 
     @Test
     @Moxy
-    public void contentTypeDefaultIsXml() throws Exception {
+    public void contentTypeDefaultIsTextPlain() throws Exception {
         HttpURLConnection connection = (HttpURLConnection) (new URL("http://localhost:9001").openConnection());
-        assertEquals("text/xml", connection.getContentType());
+        assertEquals("text/plain", connection.getContentType());
     }
 
 

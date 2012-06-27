@@ -13,7 +13,7 @@ public @interface Moxy {
     int port() default 9001;
 
     // assume we'll always be returning the same content type
-    String contentType() default "text/xml";
+    String contentType() default "text/plain";
 
     String proxy() default "";
 
