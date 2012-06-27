@@ -46,7 +46,7 @@
 
   Can you refactor the code and mock out the dependency instead?
 
-  Although you are using JUnit, you are not writing an actual unit test - and although the overhead is low it's still going to run a lot slower than an actual unit test.
+  It might look like a unit test but it is not. Although the overhead of starting a server for *every* test is fairly low it's still going to run a lot slower than an actual unit test.
 
   If you insist on using Moxy - then keep the tests to a minimum.
 
