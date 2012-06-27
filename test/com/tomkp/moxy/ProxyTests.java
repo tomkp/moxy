@@ -17,25 +17,42 @@ import static org.junit.Assert.*;
 public class ProxyTests {
 
 
+
     @Test
-    @Moxy(proxy = "http://www.google.com/robots.txt")
-    public void proxyToGoogle() throws Exception {
-        String response = Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
+    @Moxy(proxy = "http://www.google.com")
+    public void proxyPathToGoogle() throws Exception {
+        String response = Resources.toString(new URL("http://localhost:9001/robots.txt"), Charset.forName("UTF-8"));
         assertTrue(response.startsWith("User-agent: *"));
     }
 
 
+
     @Test
-    @Moxy(proxy = "http://www.google.com/robots.txt", file = "google_robots.txt")
+    @Moxy(proxy = "http://www.google.com", file = "google_robots.txt")
     public void captureResponseFromGoogle() throws Exception {
         URL resource = this.getClass().getResource(".");
         File file = new File(resource.getPath(), "google_robots.txt");
         file.delete();
 
-        Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
+        Resources.toString(new URL("http://localhost:9001/robots.txt"), Charset.forName("UTF-8"));
         assertTrue(file.exists());
         assertTrue(Files.readFirstLine(file, Charset.forName("UTF-8")).startsWith("User-agent: *"));
 
     }
 
+
+    @Test
+    @Moxy(proxy = "http://www.google.com/", file = {"google_robots.txt", "google_humans.txt"})
+    public void captureResponsesFromGoogle() throws Exception {
+        URL resource = this.getClass().getResource(".");
+        File robotsFile = new File(resource.getPath(), "google_robots.txt");
+        File siteMapFile = new File(resource.getPath(), "google_humans.txt");
+        robotsFile.delete();
+        siteMapFile.delete();
+
+        Resources.toString(new URL("http://localhost:9001/robots.txt"), Charset.forName("UTF-8"));
+        Resources.toString(new URL("http://localhost:9001/humans.txt"), Charset.forName("UTF-8"));
+        assertTrue(Files.readFirstLine(robotsFile, Charset.forName("UTF-8")).startsWith("User-agent: *"));
+        assertTrue(Files.readFirstLine(siteMapFile, Charset.forName("UTF-8")).startsWith("Google is built"));
+    }
 }

@@ -12,10 +12,9 @@ public @interface Moxy {
     // start server on this port
     int port() default 9001;
 
-    // assume we'll always be returning the same content type
-    String contentType() default "text/plain";
-
     String proxy() default "";
+
+    String[] contentType() default {};
 
     int[] statusCode() default {};
 

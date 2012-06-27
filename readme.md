@@ -99,11 +99,51 @@ Use Moxy as a proxy
 ```java
 
     @Test
-    @Moxy(proxy = "http://www.google.com/robots.txt")
+    @Moxy(proxy = "http://www.google.com")
     public void proxyToGoogle() throws Exception {
-        URL url = new URL("http://localhost:9001");
+        URL url = new URL("http://localhost:9001/robots.txt");
         String response = Resources.toString(url, Charset.forName("UTF-8"));
         assertTrue(response.startsWith("User-agent: *"));
     }
 
 ```
+
+
+Capture response when proxying
+
+
+```java
+
+    @Test
+    @Moxy(proxy = "http://www.google.com", file = "google_robots.txt")
+    public void captureResponseFromGoogle() throws Exception {
+        URL resource = this.getClass().getResource(".");
+        File file = new File(resource.getPath(), "google_robots.txt");
+
+        Resources.toString(new URL("http://localhost:9001/robots.txt"), Charset.forName("UTF-8"));
+        assertTrue(Files.readFirstLine(file, Charset.forName("UTF-8")).startsWith("User-agent: *"));
+    }
+
+```
+
+
+Capture responses when proxying
+
+
+```java
+
+    @Test
+    @Moxy(proxy = "http://www.google.com", file = {"google_robots.txt", "google_humans.txt"})
+    public void captureResponsesFromGoogle() throws Exception {
+        URL resource = this.getClass().getResource(".");
+        File robotsFile = new File(resource.getPath(), "google_robots.txt");
+        File siteMapFile = new File(resource.getPath(), "google_humans.txt");
+
+        Resources.toString(new URL("http://localhost:9001/robots.txt"), Charset.forName("UTF-8"));
+        Resources.toString(new URL("http://localhost:9001/humans.txt"), Charset.forName("UTF-8"));
+        assertTrue(Files.readFirstLine(robotsFile, Charset.forName("UTF-8")).startsWith("User-agent: *"));
+        assertTrue(Files.readFirstLine(siteMapFile, Charset.forName("UTF-8")).startsWith("Google is built"));
+    }
+
+```
+

@@ -36,6 +36,7 @@ public class RequestHandler extends AbstractHandler {
 
     @Override
     public void handle(String path, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+
         LOG.info("path: '{}'", path);
 
         setStatus(httpServletResponse);
@@ -44,7 +45,8 @@ public class RequestHandler extends AbstractHandler {
 
             //httpServletResponse.addCookie();
 
-            httpServletResponse.setContentType(moxy.contentType());
+            setContentType(httpServletResponse);
+
             String[] responses = moxy.response();
             String[] files = moxy.file();
 
@@ -55,7 +57,16 @@ public class RequestHandler extends AbstractHandler {
             String proxy = moxy.proxy();
             if (!proxy.isEmpty()) {
 
-                InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(new URL(proxy));
+                String pathInfo = httpServletRequest.getPathInfo();
+                LOG.info("pathInfo: '{}'", pathInfo);
+                String queryString = httpServletRequest.getQueryString();
+                LOG.info("queryString: '{}'", queryString);
+                if (queryString == null) {
+                    queryString = "";
+                }
+                URL url = new URL(proxy + pathInfo + queryString);
+                LOG.info("proxy to '{}'", url);
+                InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(url);
                 ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
                 if (files.length > 0)  {
@@ -110,6 +121,18 @@ public class RequestHandler extends AbstractHandler {
             httpServletResponse.setStatus(statusCodes[0]);
         } else {
             httpServletResponse.setStatus(DEFAULT_STATUS);
+        }
+    }
+
+
+    private void setContentType(HttpServletResponse httpServletResponse) {
+        String[] contentTypes = moxy.contentType();
+        if (contentTypes != null && contentTypes.length > 1) {
+            httpServletResponse.setContentType(contentTypes[index]);
+        } else if (contentTypes != null && contentTypes.length == 1) {
+            httpServletResponse.setContentType(contentTypes[0]);
+        } else {
+            httpServletResponse.setContentType("text/plain");
         }
     }
 }
