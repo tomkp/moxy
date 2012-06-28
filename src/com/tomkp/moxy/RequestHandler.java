@@ -30,6 +30,7 @@ public class RequestHandler extends AbstractHandler {
     public static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
+
     private Moxy moxy;
     private Class<?> testClass;
     private int index = 0;
@@ -65,36 +66,32 @@ public class RequestHandler extends AbstractHandler {
 
             String proxy = moxy.proxy();
 
+
             if (!proxy.isEmpty()) {
 
+                // generate the correct url to proxy to
                 URL url = createProxyUrl(httpServletRequest, proxy);
 
-                InputSupplier<? extends InputStream> inputSupplier;
+                // perform http GET / POST / PUT / DELETE
+                InputSupplier<? extends InputStream> inputSupplier = executeProxyHttpRequest(httpServletRequest, httpServletResponse, url);
 
-                if (method.equalsIgnoreCase("GET")) {
-                    inputSupplier = httpGet(httpServletResponse, url);
-                } else {
-                    inputSupplier = httpPost(httpServletRequest, httpServletResponse, url);
-                }
-
-
+                // record the reponse to a file
                 if (files.length > 0)  {
-
                     String filename = files[index];
-
                     saveResponseToFile(inputSupplier, filename);
-
                 }
 
             } else {
 
                 if (responses.length > index) {
 
+                    // write response body using annotation value
                     String response = responses[index];
                     writeResponse(httpServletResponse, response);
 
                 } else if (files.length > index) {
 
+                    // write response using file contents
                     String filename = files[index];
                     if (filename.startsWith("/")) {
                         writeAbsoluteFileToResponse(httpServletResponse, filename);
@@ -111,7 +108,9 @@ public class RequestHandler extends AbstractHandler {
         }
     }
 
+
     // response writers
+
 
     private void writeRelativeFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
         URL resource = testClass.getResource(".");
@@ -121,23 +120,40 @@ public class RequestHandler extends AbstractHandler {
         ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
     }
 
+
     private void writeAbsoluteFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
         InputStream inputStream = this.getClass().getResourceAsStream(filename);
         ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
     }
+
 
     private void writeResponse(HttpServletResponse httpServletResponse, String response) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
         ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
     }
 
+
     // http methods
+
+
+    private InputSupplier<? extends InputStream> executeProxyHttpRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, URL url) throws IOException {
+        InputSupplier<? extends InputStream> inputSupplier;
+        String method = httpServletRequest.getMethod();
+        if (method.equalsIgnoreCase("GET")) {
+            inputSupplier = httpGet(httpServletResponse, url);
+        } else {
+            inputSupplier = httpPost(httpServletRequest, httpServletResponse, url);
+        }
+        return inputSupplier;
+    }
+
 
     private InputSupplier<? extends InputStream> httpGet(HttpServletResponse httpServletResponse, URL url) throws IOException {
         InputSupplier<? extends InputStream> inputSupplier = Resources.newInputStreamSupplier(url);
         ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
         return inputSupplier;
     }
+
 
     private InputSupplier<? extends InputStream> httpPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, URL url) throws IOException {
         String method = httpServletRequest.getMethod();
@@ -147,6 +163,17 @@ public class RequestHandler extends AbstractHandler {
         ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
         return inputSupplier;
     }
+
+
+    private byte[] write(URL url, byte[] body, String method) throws IOException {
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setRequestMethod(method);
+        InputSupplier<ByteArrayInputStream> inputSupplier = ByteStreams.newInputStreamSupplier(body);
+        ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
+        return ByteStreams.toByteArray(httpURLConnection.getInputStream());
+    }
+
 
     // capture
 
@@ -165,15 +192,6 @@ public class RequestHandler extends AbstractHandler {
 
 
     //
-
-    private byte[] write(URL url, byte[] body, String method) throws IOException {
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-        httpURLConnection.setDoOutput(true);
-        httpURLConnection.setRequestMethod(method);
-        InputSupplier<ByteArrayInputStream> inputSupplier = ByteStreams.newInputStreamSupplier(body);
-        ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
-        return ByteStreams.toByteArray(httpURLConnection.getInputStream());
-    }
 
 
     private URL createProxyUrl(HttpServletRequest httpServletRequest, String proxy) throws MalformedURLException {
@@ -234,7 +252,6 @@ public class RequestHandler extends AbstractHandler {
             }
         }
     }
-
 
 
     private List<Cookie> createCookies(String cookieString) {
