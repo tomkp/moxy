@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project name="moxy" default="build-jar" basedir=".">
+
+    <path id="classpath" description="">
+		<fileset dir="lib">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+    <target name="build-jar" description="builds a jar file">
+        <delete dir="out" />
+        <mkdir dir="out" />
+        <javac srcdir="src" destdir="out" verbose="true">
+            <classpath refid="classpath" />
+        </javac>
+        <jar basedir="out" destfile="moxy.jar" />
+    </target>
+
+</project>
