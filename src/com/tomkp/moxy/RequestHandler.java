@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -42,13 +44,20 @@ public class RequestHandler extends AbstractHandler {
     @Override
     public void handle(String path, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
 
-        LOG.info("handle request, method '{}', path '{}'", httpServletRequest.getMethod(), path);
+        String method = httpServletRequest.getMethod();
 
-        setStatus(httpServletResponse);
+        //ByteStreams.copy(httpServletRequest.getInputStream(),
 
-        addCookies(httpServletResponse);
+        byte[] bytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
+        LOG.info("bytes: '{}'", new String(bytes));
+
+        LOG.info("handle request, method '{}', path '{}'", method, path);
 
         try {
+
+            setStatus(httpServletResponse);
+
+            addCookies(httpServletResponse);
 
             setContentType(httpServletResponse);
 
@@ -60,23 +69,26 @@ public class RequestHandler extends AbstractHandler {
             }
 
             String proxy = moxy.proxy();
+
             if (!proxy.isEmpty()) {
 
-                String pathInfo = httpServletRequest.getPathInfo();
-                LOG.info("pathInfo: '{}'", pathInfo);
-                String queryString = httpServletRequest.getQueryString();
-                LOG.info("queryString: '{}'", queryString);
-                if (queryString == null) {
-                    queryString = "";
+                URL url = createProxyUrl(httpServletRequest, proxy);
+
+                InputSupplier<? extends InputStream> inputSupplier;
+
+                //byte[] responseBytes = null;
+                if (method.equalsIgnoreCase("GET")) {
+                    inputSupplier = Resources.newInputStreamSupplier(url);
+                    ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
                 } else {
-                    queryString = "?" + queryString;
+                    byte[] responseBytes = write(url, bytes, method);
+                    inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
+                    ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
                 }
-                URL url = new URL(proxy + pathInfo + queryString);
-                LOG.info("proxy to '{}'", url);
-                InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(url);
-                ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
+
 
                 if (files.length > 0)  {
+
                     String filename = files[index];
                     URL resource = testClass.getResource(".");
                     File file = new File(resource.getPath(), filename);
@@ -85,7 +97,10 @@ public class RequestHandler extends AbstractHandler {
                         boolean created = file.createNewFile();
                         LOG.info("file '{}' created '{}'", file, created);
                     }
-                    ByteStreams.copy(inputSupplier.getInput(), new FileOutputStream(file));
+
+                    InputStream inputStream = inputSupplier.getInput();
+                    ByteStreams.copy(inputStream, new FileOutputStream(file));
+
                 }
 
             } else {
@@ -117,6 +132,35 @@ public class RequestHandler extends AbstractHandler {
         } finally {
             request.setHandled(true);
         }
+    }
+
+
+
+    private byte[] write(URL url, byte[] body, String method) throws IOException {
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setRequestMethod(method);
+        InputSupplier<ByteArrayInputStream> inputSupplier = ByteStreams.newInputStreamSupplier(body);
+        ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
+        //return new String(ByteStreams.toByteArray(httpURLConnection.getInputStream()));
+        //return httpURLConnection.getInputStream();
+        return ByteStreams.toByteArray(httpURLConnection.getInputStream());
+    }
+
+
+    private URL createProxyUrl(HttpServletRequest httpServletRequest, String proxy) throws MalformedURLException {
+        String pathInfo = httpServletRequest.getPathInfo();
+        LOG.info("pathInfo: '{}'", pathInfo);
+        String queryString = httpServletRequest.getQueryString();
+        LOG.info("queryString: '{}'", queryString);
+        if (queryString == null) {
+            queryString = "";
+        } else {
+            queryString = "?" + queryString;
+        }
+        URL url = new URL(proxy + pathInfo + queryString);
+        LOG.info("proxy to '{}'", url);
+        return url;
     }
 
 

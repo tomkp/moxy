@@ -65,10 +65,8 @@ public class HttpPostTests {
                 "\t</s:Body>\n" +
                 "</s:Envelope>");
 
-        System.out.println(response);
-
         assertTrue(file.exists());
-        assertTrue(Files.readFirstLine(file, Charset.forName("UTF-8")).startsWith("<?xml version=\"1.0\" encoding=\"utf-8\" ?>"));
+        assertEquals(response, Files.toString(file, Charset.forName("UTF-8")));
     }
 
 
