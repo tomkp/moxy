@@ -46,11 +46,6 @@ public class RequestHandler extends AbstractHandler {
 
         String method = httpServletRequest.getMethod();
 
-        //ByteStreams.copy(httpServletRequest.getInputStream(),
-
-        byte[] bytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
-        LOG.info("bytes: '{}'", new String(bytes));
-
         LOG.info("handle request, method '{}', path '{}'", method, path);
 
         try {
@@ -76,30 +71,18 @@ public class RequestHandler extends AbstractHandler {
 
                 InputSupplier<? extends InputStream> inputSupplier;
 
-                //byte[] responseBytes = null;
                 if (method.equalsIgnoreCase("GET")) {
-                    inputSupplier = Resources.newInputStreamSupplier(url);
-                    ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
+                    inputSupplier = httpGet(httpServletResponse, url);
                 } else {
-                    byte[] responseBytes = write(url, bytes, method);
-                    inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
-                    ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
+                    inputSupplier = httpPost(httpServletRequest, httpServletResponse, method, url);
                 }
 
 
                 if (files.length > 0)  {
 
                     String filename = files[index];
-                    URL resource = testClass.getResource(".");
-                    File file = new File(resource.getPath(), filename);
-                    if (!file.exists()) {
-                        Files.createParentDirs(file);
-                        boolean created = file.createNewFile();
-                        LOG.info("file '{}' created '{}'", file, created);
-                    }
 
-                    InputStream inputStream = inputSupplier.getInput();
-                    ByteStreams.copy(inputStream, new FileOutputStream(file));
+                    saveResponseToFile(inputSupplier, filename);
 
                 }
 
@@ -108,21 +91,15 @@ public class RequestHandler extends AbstractHandler {
                 if (responses.length > index) {
 
                     String response = responses[index];
-                    InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
-                    ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                    writeResponse(httpServletResponse, response);
 
                 } else if (files.length > index) {
 
                     String filename = files[index];
                     if (filename.startsWith("/")) {
-                        InputStream inputStream = this.getClass().getResourceAsStream(filename);
-                        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                        writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
-                        URL resource = testClass.getResource(".");
-                        File file = new File(resource.getPath(), filename);
-                        InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
-                        FileInputStream inputStream = inputSupplier.getInput();
-                        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+                        writeRelativeFileToResponse(httpServletResponse, filename);
                     }
                 }
             }
@@ -134,6 +111,54 @@ public class RequestHandler extends AbstractHandler {
         }
     }
 
+    private InputSupplier<? extends InputStream> httpPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String method, URL url) throws IOException {
+        InputSupplier<? extends InputStream> inputSupplier;
+        byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
+        byte[] responseBytes = write(url, requestBytes, method);
+        inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
+        ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
+        return inputSupplier;
+    }
+
+
+    private void writeRelativeFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
+        URL resource = testClass.getResource(".");
+        File file = new File(resource.getPath(), filename);
+        InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
+        FileInputStream inputStream = inputSupplier.getInput();
+        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+    }
+
+    private void writeAbsoluteFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
+        InputStream inputStream = this.getClass().getResourceAsStream(filename);
+        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+    }
+
+    private void writeResponse(HttpServletResponse httpServletResponse, String response) throws IOException {
+        InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
+        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+    }
+
+
+    private InputSupplier<? extends InputStream> httpGet(HttpServletResponse httpServletResponse, URL url) throws IOException {
+        InputSupplier<? extends InputStream> inputSupplier;
+        inputSupplier = Resources.newInputStreamSupplier(url);
+        ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
+        return inputSupplier;
+    }
+
+    private void saveResponseToFile(InputSupplier<? extends InputStream> inputSupplier, String filename) throws IOException {
+        URL resource = testClass.getResource(".");
+        File file = new File(resource.getPath(), filename);
+        if (!file.exists()) {
+            Files.createParentDirs(file);
+            boolean created = file.createNewFile();
+            LOG.info("file '{}' created '{}'", file, created);
+        }
+
+        InputStream inputStream = inputSupplier.getInput();
+        ByteStreams.copy(inputStream, new FileOutputStream(file));
+    }
 
 
     private byte[] write(URL url, byte[] body, String method) throws IOException {
@@ -142,8 +167,6 @@ public class RequestHandler extends AbstractHandler {
         httpURLConnection.setRequestMethod(method);
         InputSupplier<ByteArrayInputStream> inputSupplier = ByteStreams.newInputStreamSupplier(body);
         ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
-        //return new String(ByteStreams.toByteArray(httpURLConnection.getInputStream()));
-        //return httpURLConnection.getInputStream();
         return ByteStreams.toByteArray(httpURLConnection.getInputStream());
     }
 
