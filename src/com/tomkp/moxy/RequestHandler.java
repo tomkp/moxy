@@ -74,7 +74,7 @@ public class RequestHandler extends AbstractHandler {
                 if (method.equalsIgnoreCase("GET")) {
                     inputSupplier = httpGet(httpServletResponse, url);
                 } else {
-                    inputSupplier = httpPost(httpServletRequest, httpServletResponse, method, url);
+                    inputSupplier = httpPost(httpServletRequest, httpServletResponse, url);
                 }
 
 
@@ -111,15 +111,7 @@ public class RequestHandler extends AbstractHandler {
         }
     }
 
-    private InputSupplier<? extends InputStream> httpPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, String method, URL url) throws IOException {
-        InputSupplier<? extends InputStream> inputSupplier;
-        byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
-        byte[] responseBytes = write(url, requestBytes, method);
-        inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
-        ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
-        return inputSupplier;
-    }
-
+    // response writers
 
     private void writeRelativeFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
         URL resource = testClass.getResource(".");
@@ -139,13 +131,24 @@ public class RequestHandler extends AbstractHandler {
         ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
     }
 
+    // http methods
 
     private InputSupplier<? extends InputStream> httpGet(HttpServletResponse httpServletResponse, URL url) throws IOException {
-        InputSupplier<? extends InputStream> inputSupplier;
-        inputSupplier = Resources.newInputStreamSupplier(url);
+        InputSupplier<? extends InputStream> inputSupplier = Resources.newInputStreamSupplier(url);
         ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
         return inputSupplier;
     }
+
+    private InputSupplier<? extends InputStream> httpPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, URL url) throws IOException {
+        String method = httpServletRequest.getMethod();
+        byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
+        byte[] responseBytes = write(url, requestBytes, method);
+        InputSupplier<? extends InputStream> inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
+        ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
+        return inputSupplier;
+    }
+
+    // capture
 
     private void saveResponseToFile(InputSupplier<? extends InputStream> inputSupplier, String filename) throws IOException {
         URL resource = testClass.getResource(".");
@@ -160,6 +163,8 @@ public class RequestHandler extends AbstractHandler {
         ByteStreams.copy(inputStream, new FileOutputStream(file));
     }
 
+
+    //
 
     private byte[] write(URL url, byte[] body, String method) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
