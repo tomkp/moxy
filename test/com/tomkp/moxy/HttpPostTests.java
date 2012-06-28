@@ -1,7 +1,9 @@
 package com.tomkp.moxy;
 
 import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.junit.MoxyRunner;
 import org.junit.Test;
@@ -10,8 +12,10 @@ import org.junit.runner.RunWith;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MoxyRunner.class)
 public class HttpPostTests {
@@ -38,6 +42,33 @@ public class HttpPostTests {
     public void httpDelete() throws Exception {
         URL url = new URL("http://localhost:9001");
         assertEquals("hello delete", delete(url));
+    }
+
+
+    @Test
+    @Moxy(proxy = "http://api.flickr.com", file = "flickr_soap.txt")
+    public void flickrPostSoap() throws Exception {
+        URL resource = this.getClass().getResource(".");
+        File file = new File(resource.getPath(), "flickr_soap.txt");
+        file.delete();
+
+        String response = post(new URL("http://localhost:9001/services/soap/"), "<s:Envelope\n" +
+                "\txmlns:s=\"http://www.w3.org/2003/05/soap-envelope\"\n" +
+                "\txmlns:xsi=\"http://www.w3.org/1999/XMLSchema-instance\"\n" +
+                "\txmlns:xsd=\"http://www.w3.org/1999/XMLSchema\"\n" +
+                ">\n" +
+                "\t<s:Body>\n" +
+                "\t\t<x:FlickrRequest xmlns:x=\"urn:flickr\">\n" +
+                "\t\t\t<method>flickr.test.echo</method>\n" +
+                "\t\t\t<name>value</name>\n" +
+                "\t\t</x:FlickrRequest>\n" +
+                "\t</s:Body>\n" +
+                "</s:Envelope>");
+
+        System.out.println(response);
+
+        assertTrue(file.exists());
+        assertTrue(Files.readFirstLine(file, Charset.forName("UTF-8")).startsWith("<?xml version=\"1.0\" encoding=\"utf-8\" ?>"));
     }
 
 
