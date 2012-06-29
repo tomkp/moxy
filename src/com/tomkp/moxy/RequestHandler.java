@@ -39,6 +39,7 @@ public class RequestHandler extends AbstractHandler {
     public RequestHandler(Class<?> testClass, Moxy moxy) {
         this.testClass = testClass;
         this.moxy = moxy;
+        Requests.reset();
     }
 
 
@@ -49,9 +50,11 @@ public class RequestHandler extends AbstractHandler {
 
         LOG.info("handle request, method '{}', path '{}'", method, path);
 
+        Requests.add(httpServletRequest.getParameterMap());
+
         try {
 
-            setStatus(httpServletResponse);
+            httpServletResponse.setStatus(getStatusCode());
 
             addCookies(httpServletResponse);
 
@@ -210,15 +213,15 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void setStatus(HttpServletResponse httpServletResponse) {
+    private int getStatusCode() {
         int[] statusCodes = moxy.statusCode();
+        int statusCode = DEFAULT_STATUS;
         if (statusCodes != null && statusCodes.length > 1) {
-            httpServletResponse.setStatus(statusCodes[index]);
+            statusCode = statusCodes[index];
         } else if (statusCodes != null && statusCodes.length == 1) {
-            httpServletResponse.setStatus(statusCodes[0]);
-        } else {
-            httpServletResponse.setStatus(DEFAULT_STATUS);
+            statusCode = statusCodes[0];
         }
+        return statusCode;
     }
 
 
