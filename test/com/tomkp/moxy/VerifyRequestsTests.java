@@ -1,5 +1,6 @@
 package com.tomkp.moxy;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.junit.MoxyRunner;
@@ -10,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -32,5 +34,17 @@ public class VerifyRequestsTests {
     }
 
 
+    @Test
+    @Moxy
+    public void verifyRequestHeaders() throws Exception {
+        URL url = new URL("http://localhost:9001");
+        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+        httpURLConnection.setDoOutput(true);
+        httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        httpURLConnection.setRequestMethod("POST");
+        httpURLConnection.connect();
+        ByteStreams.toByteArray(httpURLConnection.getInputStream());
+        assertEquals("application/x-www-form-urlencoded", Requests.getHeaders().get(0).get("Content-Type"));
+    }
 
 }

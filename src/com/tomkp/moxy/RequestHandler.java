@@ -20,8 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class RequestHandler extends AbstractHandler {
 
@@ -50,7 +49,9 @@ public class RequestHandler extends AbstractHandler {
 
         LOG.info("handle request, method '{}', path '{}'", method, path);
 
-        Requests.add(httpServletRequest.getParameterMap());
+        Requests.recordParameters(httpServletRequest.getParameterMap());
+        Map<String, String> headers = extractHeaders(httpServletRequest);
+        Requests.recordHeaders(headers);
 
         try {
 
@@ -109,6 +110,19 @@ public class RequestHandler extends AbstractHandler {
         } finally {
             request.setHandled(true);
         }
+    }
+
+
+    private Map<String, String> extractHeaders(HttpServletRequest httpServletRequest) {
+        Map<String, String> headers = new LinkedHashMap<String, String>();
+        Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerKey = headerNames.nextElement();
+            String headerValue = httpServletRequest.getHeader(headerKey);
+            LOG.info("header '{}:{}'", headerKey, headerValue);
+            headers.put(headerKey, headerValue);
+        }
+        return headers;
     }
 
 

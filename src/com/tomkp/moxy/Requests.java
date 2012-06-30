@@ -1,24 +1,32 @@
 package com.tomkp.moxy;
 
-import org.eclipse.jetty.util.MultiMap;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Requests {
 
-    private static List<Map<String, String[]>> paramaters;
+    private static List<Map<String, String[]>> parameters;
+    private static List<Map<String, String>> headers;
 
     public static void reset() {
-        paramaters = new ArrayList<Map<String, String[]>>();
+        parameters = new ArrayList<Map<String, String[]>>();
+        headers = new ArrayList<Map<String, String>>();
     }
 
-    public static void add(Map<String, String[]> parameters) {
-        paramaters.add(parameters);
+    public static void recordParameters(Map<String, String[]> parameters) {
+        Requests.parameters.add(parameters);
+    }
+
+    public static void recordHeaders(Map<String, String> headers) {
+        Requests.headers.add(headers);
     }
 
     public static List<Map<String, String[]>> getParameters() {
-        return paramaters;
+        return parameters;
+    }
+
+    public static List<Map<String, String>> getHeaders() {
+        return headers;
     }
 }
