@@ -47,4 +47,27 @@ public class VerifyRequestsTests {
         assertEquals("application/x-www-form-urlencoded", Requests.getHeaders().get(0).get("Content-Type"));
     }
 
+
+    @Test
+    @Moxy
+    public void verifyQueryStings() throws Exception {
+        new URL("http://localhost:9001/?a=b&a=c").openStream();
+        assertEquals("a=b&a=c", Requests.getQueryStrings().get(0));
+    }
+
+
+    @Test
+    @Moxy
+    public void verifyRequestUri() throws Exception {
+        new URL("http://localhost:9001/context/path.html").openStream();
+        assertEquals("/context/path.html", Requests.getRequestUris().get(0));
+    }
+
+
+    @Test
+    @Moxy
+    public void verifyPathInfo() throws Exception {
+        new URL("http://localhost:9001/context/path.html").openStream();
+        assertEquals("/context/path.html", Requests.getPathInfos().get(0));
+    }
 }
