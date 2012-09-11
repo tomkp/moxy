@@ -9,10 +9,14 @@ import org.junit.runners.model.FrameworkMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MoxyRunner extends BlockJUnit4ClassRunner {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(MoxyRunner.class);
+    private static final int DEFAULT_PORT = 9001;
 
 
     private Class<?> testClass;
@@ -28,9 +32,20 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
         long start = System.currentTimeMillis();
         if (LOG.isInfoEnabled()) LOG.info(testClass + "." + method.getName() + "");
+
+        List<Moxy> moxies = new ArrayList<Moxy>();
         Moxy moxyMethodAnnotation = method.getAnnotation(Moxy.class);
         if (moxyMethodAnnotation != null) {
-            Server server = new Server(moxyMethodAnnotation.port());
+            moxies.add(moxyMethodAnnotation);
+        }
+        addMoxies(moxies, testClass);
+
+        LOG.info("moxies: '{}'", moxies);
+
+        if (moxies.size() > 0) {
+            int port = selectPort(moxies);
+            LOG.info("start server on port {}", port);
+            Server server = new Server(port);
             try {
                 RequestHandler handler = new RequestHandler(testClass, moxyMethodAnnotation);
                 server.setHandler(handler);
@@ -43,6 +58,30 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
         }
         long end = System.currentTimeMillis();
         LOG.info("" + (end - start) + "ms");
+    }
+
+
+    private void addMoxies(List<Moxy> moxies, Class<?> claz) {
+        Moxy moxy = claz.getAnnotation(Moxy.class);
+        if (moxy != null) {
+            moxies.add(moxy);
+        }
+        Class<?> superclass = claz.getSuperclass();
+        if (superclass != null) {
+            addMoxies(moxies, superclass);
+        }
+    }
+
+
+    private int selectPort(List<Moxy> moxies) {
+        int port = DEFAULT_PORT;
+        for (Moxy moxy : moxies) {
+            if (moxy.port() != 0) {
+                port = moxy.port();
+                break;
+            }
+        }
+        return port;
     }
 
 

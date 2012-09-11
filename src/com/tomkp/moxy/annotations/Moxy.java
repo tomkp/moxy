@@ -9,8 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Moxy {
 
-    // start server on this port
-    int port() default 9001;
+    int port() default 0;
 
     String proxy() default "";
 
@@ -24,4 +23,5 @@ public @interface Moxy {
 
     String[] file() default {};
 
+    String[] template() default {};
 }

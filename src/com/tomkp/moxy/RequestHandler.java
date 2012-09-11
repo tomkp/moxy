@@ -20,7 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RequestHandler extends AbstractHandler {
 
@@ -30,14 +31,14 @@ public class RequestHandler extends AbstractHandler {
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
 
-    private Moxy moxy;
+    private Moxy moxyMethodAnnotation;
     private Class<?> testClass;
     private int index = 0;
 
 
     public RequestHandler(Class<?> testClass, Moxy moxy) {
         this.testClass = testClass;
-        this.moxy = moxy;
+        this.moxyMethodAnnotation = moxy;
         Requests.reset();
     }
 
@@ -59,14 +60,14 @@ public class RequestHandler extends AbstractHandler {
 
             setContentType(httpServletResponse);
 
-            String[] responses = moxy.response();
-            String[] files = moxy.file();
+            String[] responses = moxyMethodAnnotation.response();
+            String[] files = moxyMethodAnnotation.file();
 
             if (responses.length > 0 && files.length > 0) {
                 throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
-            String proxy = moxy.proxy();
+            String proxy = moxyMethodAnnotation.proxy();
 
 
             if (!proxy.isEmpty()) {
@@ -89,6 +90,9 @@ public class RequestHandler extends AbstractHandler {
 
                     // write response body using annotation value
                     String response = responses[index];
+
+                    //response = response.replaceAll(moxyMethodAnnotation.template()[0], moxyMethodAnnotation.template()[1]);
+
                     writeResponse(httpServletResponse, response);
 
                 } else if (files.length > index) {
@@ -215,7 +219,7 @@ public class RequestHandler extends AbstractHandler {
 
 
     private int getStatusCode() {
-        int[] statusCodes = moxy.statusCode();
+        int[] statusCodes = moxyMethodAnnotation.statusCode();
         int statusCode = DEFAULT_STATUS;
         if (statusCodes != null && statusCodes.length > 1) {
             statusCode = statusCodes[index];
@@ -227,7 +231,7 @@ public class RequestHandler extends AbstractHandler {
 
 
     private void setContentType(HttpServletResponse httpServletResponse) {
-        String[] contentTypes = moxy.contentType();
+        String[] contentTypes = moxyMethodAnnotation.contentType();
         if (contentTypes != null && contentTypes.length > 1) {
             httpServletResponse.setContentType(contentTypes[index]);
         } else if (contentTypes != null && contentTypes.length == 1) {
@@ -239,7 +243,7 @@ public class RequestHandler extends AbstractHandler {
 
 
     private void addCookies(HttpServletResponse httpServletResponse) {
-        String[] cookies = moxy.cookie();
+        String[] cookies = moxyMethodAnnotation.cookie();
         if (cookies != null && cookies.length > 1) {
             String cookie = cookies[index];
             LOG.info("cookie: '{}'", cookie);
