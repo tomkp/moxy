@@ -54,76 +54,27 @@ public class RequestHandler extends AbstractHandler {
 
         try {
 
-            String[] responses = null;
-            String[] files = null;
-            String[] cookies = null;
-            String[] contentTypes = null;
-            int[] statusCodes = null;
-            String proxy = null;
+            MoxyData moxyData = new MoxyData(moxies);
 
-            for (Moxy moxy : moxies) {
-                responses = moxy.response();
-                if (responses != null && responses.length > 0) {
-                    break;
-                }
-            }
-
-            for (Moxy moxy : moxies) {
-                files = moxy.file();
-                if (files != null && files.length > 0) {
-                    break;
-                }
-            }
-
-            for (Moxy moxy : moxies) {
-                cookies = moxy.cookie();
-                if (cookies != null && cookies.length > 0) {
-                    break;
-                }
-            }
-
-            for (Moxy moxy : moxies) {
-                contentTypes = moxy.contentType();
-                if (contentTypes != null && contentTypes.length > 0) {
-                    break;
-                }
-            }
-
-            for (Moxy moxy : moxies) {
-                statusCodes = moxy.statusCode();
-                if (statusCodes != null && statusCodes.length > 0) {
-                    break;
-                }
-            }
-
-            for (Moxy moxy : moxies) {
-                proxy = moxy.proxy();
-                if (proxy != null) {
-                    break;
-                }
-            }
-
-
+            int[] statusCodes = moxyData.getStatusCodes();
 
             int statusCode = getStatusCode(statusCodes);
-            httpServletResponse.setStatus(statusCode);
+            List<Cookie> httpCookies = getCookies(moxyData.getCookies());
 
-            List<Cookie> httpCookies = getCookies(cookies);
+            httpServletResponse.setStatus(statusCode);
             for (Cookie httpCookie : httpCookies) {
                 httpServletResponse.addCookie(httpCookie);
             }
+            httpServletResponse.setContentType(getContentType(moxyData.getContentTypes()));
 
-            httpServletResponse.setContentType(getContentType(contentTypes));
-
-
+            String[] files = moxyData.getFiles();
+            String[] responses = moxyData.getResponses();
 
             if (responses.length > 0 && files.length > 0) {
                 throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
-
-
-
+            String proxy = moxyData.getProxy();
             if (!proxy.isEmpty()) {
 
                 // generate the correct url to proxy to
