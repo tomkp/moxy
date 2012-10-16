@@ -47,7 +47,7 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
             LOG.info("start server on port {}", port);
             Server server = new Server(port);
             try {
-                RequestHandler handler = new RequestHandler(testClass, moxyMethodAnnotation);
+                RequestHandler handler = new RequestHandler(testClass, moxies);
                 server.setHandler(handler);
                 server.start();
                 super.runChild(method, notifier);

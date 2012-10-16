@@ -31,14 +31,14 @@ public class RequestHandler extends AbstractHandler {
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
 
-    private Moxy moxyMethodAnnotation;
+    private List<Moxy> moxies;
     private Class<?> testClass;
     private int index = 0;
 
 
-    public RequestHandler(Class<?> testClass, Moxy moxy) {
+    public RequestHandler(Class<?> testClass, List<Moxy> moxies) {
         this.testClass = testClass;
-        this.moxyMethodAnnotation = moxy;
+        this.moxies = moxies;
         Requests.reset();
     }
 
@@ -54,20 +54,74 @@ public class RequestHandler extends AbstractHandler {
 
         try {
 
-            httpServletResponse.setStatus(getStatusCode());
+            String[] responses = null;
+            String[] files = null;
+            String[] cookies = null;
+            String[] contentTypes = null;
+            int[] statusCodes = null;
+            String proxy = null;
 
-            addCookies(httpServletResponse);
+            for (Moxy moxy : moxies) {
+                responses = moxy.response();
+                if (responses != null && responses.length > 0) {
+                    break;
+                }
+            }
 
-            setContentType(httpServletResponse);
+            for (Moxy moxy : moxies) {
+                files = moxy.file();
+                if (files != null && files.length > 0) {
+                    break;
+                }
+            }
 
-            String[] responses = moxyMethodAnnotation.response();
-            String[] files = moxyMethodAnnotation.file();
+            for (Moxy moxy : moxies) {
+                cookies = moxy.cookie();
+                if (cookies != null && cookies.length > 0) {
+                    break;
+                }
+            }
+
+            for (Moxy moxy : moxies) {
+                contentTypes = moxy.contentType();
+                if (contentTypes != null && contentTypes.length > 0) {
+                    break;
+                }
+            }
+
+            for (Moxy moxy : moxies) {
+                statusCodes = moxy.statusCode();
+                if (statusCodes != null && statusCodes.length > 0) {
+                    break;
+                }
+            }
+
+            for (Moxy moxy : moxies) {
+                proxy = moxy.proxy();
+                if (proxy != null) {
+                    break;
+                }
+            }
+
+
+
+            int statusCode = getStatusCode(statusCodes);
+            httpServletResponse.setStatus(statusCode);
+
+            List<Cookie> httpCookies = getCookies(cookies);
+            for (Cookie httpCookie : httpCookies) {
+                httpServletResponse.addCookie(httpCookie);
+            }
+
+            httpServletResponse.setContentType(getContentType(contentTypes));
+
+
 
             if (responses.length > 0 && files.length > 0) {
                 throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
-            String proxy = moxyMethodAnnotation.proxy();
+
 
 
             if (!proxy.isEmpty()) {
@@ -90,8 +144,6 @@ public class RequestHandler extends AbstractHandler {
 
                     // write response body using annotation value
                     String response = responses[index];
-
-                    //response = response.replaceAll(moxyMethodAnnotation.template()[0], moxyMethodAnnotation.template()[1]);
 
                     writeResponse(httpServletResponse, response);
 
@@ -218,8 +270,7 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private int getStatusCode() {
-        int[] statusCodes = moxyMethodAnnotation.statusCode();
+    private int getStatusCode(int[] statusCodes) {
         int statusCode = DEFAULT_STATUS;
         if (statusCodes != null && statusCodes.length > 1) {
             statusCode = statusCodes[index];
@@ -230,35 +281,32 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private void setContentType(HttpServletResponse httpServletResponse) {
-        String[] contentTypes = moxyMethodAnnotation.contentType();
+    private String getContentType(String[] contentTypes) {
+        String contentType;
         if (contentTypes != null && contentTypes.length > 1) {
-            httpServletResponse.setContentType(contentTypes[index]);
+            contentType = contentTypes[index];
         } else if (contentTypes != null && contentTypes.length == 1) {
-            httpServletResponse.setContentType(contentTypes[0]);
+            contentType = contentTypes[0];
         } else {
-            httpServletResponse.setContentType(DEFAULT_CONTENT_TYPE);
+            contentType = DEFAULT_CONTENT_TYPE;
         }
+        LOG.info("contentType: '{}'", contentType);
+        return contentType;
     }
 
 
-    private void addCookies(HttpServletResponse httpServletResponse) {
-        String[] cookies = moxyMethodAnnotation.cookie();
+    private List<Cookie> getCookies(String[] cookies) {
+        List<Cookie> httpCookies = new ArrayList<Cookie>();
         if (cookies != null && cookies.length > 1) {
             String cookie = cookies[index];
             LOG.info("cookie: '{}'", cookie);
-            List<Cookie> httpCookies = createCookies(cookie);
-            for (Cookie httpCookie : httpCookies) {
-                httpServletResponse.addCookie(httpCookie);
-            }
+            httpCookies = createCookies(cookie);
         } else if (cookies != null && cookies.length == 1) {
             String cookie = cookies[0];
             LOG.info("cookie: '{}'", cookie);
-            List<Cookie> httpCookies = createCookies(cookie);
-            for (Cookie httpCookie : httpCookies) {
-                httpServletResponse.addCookie(httpCookie);
-            }
+            httpCookies = createCookies(cookie);
         }
+        return httpCookies;
     }
 
 

@@ -23,5 +23,4 @@ public @interface Moxy {
 
     String[] file() default {};
 
-    String[] template() default {};
 }
