@@ -79,5 +79,16 @@ public class MoxyData {
         return proxy;
     }
 
+    public boolean getIndexed() {
+        boolean indexed = false;
+        for (Moxy moxy : moxies) {
+            indexed = moxy.indexed();
+            if (indexed) {
+                break;
+            }
+        }
+        return indexed;
+    }
+
 
 }

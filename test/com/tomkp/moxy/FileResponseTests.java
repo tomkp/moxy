@@ -38,6 +38,14 @@ public class FileResponseTests {
     }
 
 
+    @Test
+    @Moxy(file = {"indexed$.xml"}, indexed = true)
+    public void indexedFileResponses() throws Exception {
+        assertEquals("one", readUrl());
+        assertEquals("two", readUrl());
+        assertEquals("three", readUrl());
+    }
+
     private String readUrl() throws IOException {
         return Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
     }

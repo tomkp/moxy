@@ -23,4 +23,5 @@ public @interface Moxy {
 
     String[] file() default {};
 
+    boolean indexed() default false;
 }

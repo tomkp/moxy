@@ -69,6 +69,7 @@ public class RequestHandler extends AbstractHandler {
 
             String[] files = moxyData.getFiles();
             String[] responses = moxyData.getResponses();
+            boolean indexed = moxyData.getIndexed();
 
             if (responses.length > 0 && files.length > 0) {
                 throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
@@ -84,12 +85,17 @@ public class RequestHandler extends AbstractHandler {
                 InputSupplier<? extends InputStream> inputSupplier = executeProxyHttpRequest(httpServletRequest, httpServletResponse, url);
 
                 // record the reponse to a file
-                if (files.length > 0)  {
-                    String filename = files[index];
+                if (files.length > 0 || indexed)  {
+
+                    String filename = generateFilename(files, indexed);
+
                     saveResponseToFile(inputSupplier, filename);
                 }
 
             } else {
+
+                LOG.info("current index {}, indexed {}", index, indexed);
+                LOG.info("{} files, {} static responses", files.length, responses.length);
 
                 if (responses.length > index) {
 
@@ -98,10 +104,11 @@ public class RequestHandler extends AbstractHandler {
 
                     writeResponse(httpServletResponse, response);
 
-                } else if (files.length > index) {
+                } else if (files.length > index || indexed) {
 
                     // write response using file contents
-                    String filename = files[index];
+                    String filename = generateFilename(files, indexed);
+
                     if (filename.startsWith("/")) {
                         writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
@@ -118,6 +125,17 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
+    private String generateFilename(String[] files, boolean indexed) {
+        String filename;
+        if (indexed) {
+            filename = files[0];
+            filename = filename.replaceAll("\\$", String.valueOf(index + 1));
+        } else {
+            filename = files[index];
+        }
+        LOG.info("filename: '{}'", filename);
+        return filename;
+    }
 
 
     // response writers
