@@ -18,14 +18,14 @@ public class FileResponseTests {
 
     @Test
     @Moxy(file = {"hello.xml"})
-    public void fileResponse() throws Exception {
+    public void relativeFileResponse() throws Exception {
         assertEquals("<hello>Moxy</hello>", readUrl());
     }
 
 
     @Test
     @Moxy(file = {"hello.xml", "goodbye.xml"})
-    public void fileResponses() throws Exception {
+    public void relativeFileResponses() throws Exception {
         assertEquals("<hello>Moxy</hello>", readUrl());
         assertEquals("<goodbye>Moxy</goodbye>", readUrl());
     }
@@ -33,18 +33,10 @@ public class FileResponseTests {
 
     @Test
     @Moxy(file = {"/scripts/absolute.xml"})
-    public void absolutePathFileResponse() throws Exception {
+    public void absoluteFileResponse() throws Exception {
         assertEquals("<absolute>Moxy</absolute>", readUrl());
     }
 
-
-    @Test
-    @Moxy(file = {"indexed$.xml"}, indexed = true)
-    public void indexedFileResponses() throws Exception {
-        assertEquals("one", readUrl());
-        assertEquals("two", readUrl());
-        assertEquals("three", readUrl());
-    }
 
     private String readUrl() throws IOException {
         return Resources.toString(new URL("http://localhost:9001"), Charset.forName("UTF-8"));
