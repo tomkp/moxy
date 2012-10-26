@@ -88,7 +88,6 @@ public class RequestHandler extends AbstractHandler {
                 if (files.length > 0 || indexed)  {
 
                     String filename = generateFilename(files, indexed);
-
                     saveResponseToFile(inputSupplier, filename);
                 }
 
@@ -101,7 +100,6 @@ public class RequestHandler extends AbstractHandler {
 
                     // write response body using annotation value
                     String response = responses[index];
-
                     writeResponse(httpServletResponse, response);
 
                 } else if (files.length > index || indexed) {
