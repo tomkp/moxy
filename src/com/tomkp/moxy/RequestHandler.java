@@ -88,6 +88,7 @@ public class RequestHandler extends AbstractHandler {
                 if (files.length > 0 || indexed)  {
 
                     String filename = generateFilename(files, indexed);
+
                     saveResponseToFile(inputSupplier, filename);
                 }
 
