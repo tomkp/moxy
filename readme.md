@@ -5,11 +5,11 @@
 ```java
 
 @RunWith(MoxyRunner.class)
-public class Examples {
+public class MyTest {
 
     @Test
     @Moxy(response = "hello world")
-    public void singleResponse() throws Exception {
+    public void example() throws Exception {
 
         // opening http://locahost:9001 will return 'hello world'
     }
