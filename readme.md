@@ -2,7 +2,24 @@
 
   Moxy is for those times when you are __absolutely convinced__ that you need to run integration tests against a server.
 
-  [Check out some examples](https://github.com/tomkp/moxy#examples)
+```java
+
+@RunWith(MoxyRunner.class)
+public class Examples {
+
+    @Test
+    @Moxy(response = "hello world")
+    public void singleResponse() throws Exception {
+
+        // opening http://locahost:9001 will return 'hello world'
+    }
+
+}
+
+```
+
+
+  [Check out some more examples](https://github.com/tomkp/moxy#examples)
 
 ## Usage
 
