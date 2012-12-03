@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Moxy : Simple mocking / proxy server annotations for your integration tests " />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Moxy</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/tomkp/moxy">View on GitHub</a>
+
+          <h1 id="project_title">Moxy</h1>
+          <h2 id="project_tagline">Simple mocking / proxy server annotations for your integration tests </h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/tomkp/moxy/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/tomkp/moxy/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Moxy</h1>
+
+<p>Moxy is for those times when you are <strong>absolutely convinced</strong> that you need to run integration tests against a server.</p>
+
+<p><a href="https://github.com/tomkp/moxy#examples">Check out some examples</a></p>
+
+<h2>Usage</h2>
+
+<p>Annotate your test classes with <code>@RunWith(MoxyRunner.class)</code></p>
+
+<p>Annotate your tests with <code>@Moxy</code></p>
+
+<h2>Configuration</h2>
+
+<p>You can configure the response body and headers.</p>
+
+<h3>response body</h3>
+
+<p>There are two ways of responding. You can either load the response from a file, or you can inline the response n the annotation.</p>
+
+<ul>
+<li>
+<code>response</code> this allows you to inline your response</li>
+<li>
+<code>file</code> the response body is loaded from a file (using either a relative or absolute path)</li>
+</ul><h3>response headers</h3>
+
+<ul>
+<li>
+<code>contentType</code> the content type, the default is<code>text/plain</code>
+</li>
+<li>
+<p><code>statusCode</code> the HTTP status code, the default is <code>200</code></p>
+
+<p>Wherever multiple values can be given the following logic will be used:</p>
+</li>
+<li><p>0: use default value</p></li>
+<li><p>1: always return this value</p></li>
+<li>
+<p>x: a value for each request</p>
+
+<p>eg:</p>
+
+<p><code>@Moxy(statusCode = {500, 500, 200})</code> - the first 2 requests get status code <code>500</code>, the third request gets a <code>200</code></p>
+
+<p><code>@Moxy(statusCode = 404)</code> - all requests get a <code>404</code></p>
+
+<p><code>@Moxy</code> - all requests get the default status code <code>200</code></p>
+</li>
+</ul><h2>Why you shouldn't use Moxy</h2>
+
+<p>Before using Moxy you should ask yourself if it is truly necessary.</p>
+
+<p>Can you refactor the code and mock out the dependency instead?</p>
+
+<p>It might look like a unit test but it is not. Although the overhead of starting a server for <em>every</em> test is fairly low it's still going to run a lot slower than an actual unit test.</p>
+
+<p>If you insist on using Moxy - then keep the tests to a minimum.</p>
+
+<h2>Examples</h2>
+
+<p>Mock server running on port 9001 returns <code>hello world</code> for all requests</p>
+
+<div class="highlight"><pre>
+<span class="nd">@RunWith</span><span class="o">(</span><span class="n">MoxyRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Examples</span> <span class="o">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">response</span> <span class="o">=</span> <span class="s">"hello world"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">singleResponse</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001"</span><span class="o">);</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"hello world"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</pre></div>
+
+<p>Multiple responses</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">response</span> <span class="o">=</span> <span class="o">{</span><span class="s">"hello"</span><span class="o">,</span> <span class="s">"goodbye"</span><span class="o">})</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">multipleResponses</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001"</span><span class="o">);</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"hello"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"goodbye"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>JSON response</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">response</span> <span class="o">=</span> <span class="s">"{\"id\": 1, \"mood\": \"Adventurous\"}"</span><span class="o">,</span> <span class="n">contentType</span> <span class="o">=</span> <span class="s">"application/json"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">staticResponse</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001"</span><span class="o">);</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"{\"id\": 1, \"mood\": \"Adventurous\"}"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>JSON from a relative file</p>
+
+<div class="highlight"><pre>
+
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">file</span> <span class="o">=</span> <span class="s">"example.json"</span><span class="o">,</span> <span class="n">contentType</span> <span class="o">=</span> <span class="s">"application/json"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">fileResponse</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001"</span><span class="o">);</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"{\"id\": 1, \"mood\": \"Adventurous\"}"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>XML from absolute files</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">file</span> <span class="o">=</span> <span class="o">{</span><span class="s">"/scripts/example1.xml"</span><span class="o">,</span> <span class="s">"/scripts/example2.xml"</span><span class="o">})</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">fileResponses</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001"</span><span class="o">);</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"&lt;example&gt;ONE&lt;/example&gt;"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"&lt;example&gt;TWO&lt;/example&gt;"</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>Use Moxy as a proxy</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">proxy</span> <span class="o">=</span> <span class="s">"http://www.google.com"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">proxyToGoogle</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001/robots.txt"</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">response</span> <span class="o">=</span> <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">url</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">));</span>
+        <span class="n">assertTrue</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"User-agent: *"</span><span class="o">));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>Capture response when proxying</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">proxy</span> <span class="o">=</span> <span class="s">"http://www.google.com"</span><span class="o">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s">"google_robots.txt"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">captureResponseFromGoogle</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">resource</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">"."</span><span class="o">);</span>
+        <span class="n">File</span> <span class="n">file</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">resource</span><span class="o">.</span><span class="na">getPath</span><span class="o">(),</span> <span class="s">"google_robots.txt"</span><span class="o">);</span>
+
+        <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001/robots.txt"</span><span class="o">),</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">));</span>
+        <span class="n">assertTrue</span><span class="o">(</span><span class="n">Files</span><span class="o">.</span><span class="na">readFirstLine</span><span class="o">(</span><span class="n">file</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"User-agent: *"</span><span class="o">));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>Capture responses when proxying</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">proxy</span> <span class="o">=</span> <span class="s">"http://www.google.com"</span><span class="o">,</span> <span class="n">file</span> <span class="o">=</span> <span class="o">{</span><span class="s">"google_robots.txt"</span><span class="o">,</span> <span class="s">"google_humans.txt"</span><span class="o">})</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">captureResponsesFromGoogle</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">URL</span> <span class="n">resource</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getResource</span><span class="o">(</span><span class="s">"."</span><span class="o">);</span>
+        <span class="n">File</span> <span class="n">robotsFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">resource</span><span class="o">.</span><span class="na">getPath</span><span class="o">(),</span> <span class="s">"google_robots.txt"</span><span class="o">);</span>
+        <span class="n">File</span> <span class="n">siteMapFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">resource</span><span class="o">.</span><span class="na">getPath</span><span class="o">(),</span> <span class="s">"google_humans.txt"</span><span class="o">);</span>
+
+        <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001/robots.txt"</span><span class="o">),</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">));</span>
+        <span class="n">Resources</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001/humans.txt"</span><span class="o">),</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">));</span>
+        <span class="n">assertTrue</span><span class="o">(</span><span class="n">Files</span><span class="o">.</span><span class="na">readFirstLine</span><span class="o">(</span><span class="n">robotsFile</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"User-agent: *"</span><span class="o">));</span>
+        <span class="n">assertTrue</span><span class="o">(</span><span class="n">Files</span><span class="o">.</span><span class="na">readFirstLine</span><span class="o">(</span><span class="n">siteMapFile</span><span class="o">,</span> <span class="n">Charset</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"UTF-8"</span><span class="o">)).</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"Google is built"</span><span class="o">));</span>
+    <span class="o">}</span>
+
+</pre></div>
+
+<p>Multiple content types;</p>
+
+<div class="highlight"><pre>
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">contentType</span> <span class="o">=</span> <span class="o">{</span><span class="s">"application/json"</span><span class="o">,</span> <span class="s">"text/xml"</span><span class="o">})</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">multipleContentTypes</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+        <span class="n">HttpURLConnection</span> <span class="n">connection</span><span class="o">;</span>
+        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="s">"http://localhost:9001"</span><span class="o">);</span>
+
+        <span class="n">connection</span> <span class="o">=</span> <span class="o">(</span><span class="n">HttpURLConnection</span><span class="o">)</span> <span class="o">(</span><span class="n">url</span><span class="o">.</span><span class="na">openConnection</span><span class="o">());</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"application/json"</span><span class="o">,</span> <span class="n">connection</span><span class="o">.</span><span class="na">getContentType</span><span class="o">());</span>
+
+        <span class="n">connection</span> <span class="o">=</span> <span class="o">(</span><span class="n">HttpURLConnection</span><span class="o">)</span> <span class="o">(</span><span class="n">url</span><span class="o">.</span><span class="na">openConnection</span><span class="o">());</span>
+        <span class="n">assertEquals</span><span class="o">(</span><span class="s">"text/xml"</span><span class="o">,</span> <span class="n">connection</span><span class="o">.</span><span class="na">getContentType</span><span class="o">());</span>
+    <span class="o">}</span>
+
+</pre></div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Moxy maintained by <a href="https://github.com/tomkp">tomkp</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
