@@ -35,7 +35,22 @@
 
 <p>Moxy is for those times when you are <strong>absolutely convinced</strong> that you need to run integration tests against a server.</p>
 
-<p><a href="https://github.com/tomkp/moxy#examples">Check out some examples</a></p>
+<div class="highlight"><pre>
+<span class="nd">@RunWith</span><span class="o">(</span><span class="n">MoxyRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyTest</span> <span class="o">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="nd">@Moxy</span><span class="o">(</span><span class="n">response</span> <span class="o">=</span> <span class="s">"hello world"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">example</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+
+        <span class="c1">// opening http://locahost:9001 will return 'hello world'</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</pre></div>
+
+<p><a href="https://github.com/tomkp/moxy#examples">Check out some more examples</a></p>
 
 <h2>Usage</h2>
 
