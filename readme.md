@@ -2,6 +2,9 @@
 
   Moxy is for those times when you are __absolutely convinced__ that you need to run integration tests against a server.
 
+    [![Build Status](https://travis-ci.org/tomkp/moxy.png)](https://travis-ci.org/tomkp/moxy)
+
+
 ```java
 
 @RunWith(MoxyRunner.class)
