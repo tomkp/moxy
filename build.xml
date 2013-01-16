@@ -55,8 +55,7 @@
                 <path refid="classpath"/>
             </classpath>
 
-            <!--<formatter type="xml" />-->
-            <formatter type="plain"/>
+            <formatter type="xml" />
 
             <batchtest todir="out/reports">
                 <fileset dir="test" />
