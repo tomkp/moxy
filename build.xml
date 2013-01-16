@@ -41,7 +41,7 @@
 
 
     <target name="test" description="run tests" depends="compile-tests">
-        <mkdir dir="docs" />
+        <mkdir dir="out/reports" />
 
         <junit fork="yes"
                forkmode="once"
@@ -58,7 +58,7 @@
             <!--<formatter type="xml" />-->
             <formatter type="plain"/>
 
-            <batchtest todir="docs">
+            <batchtest todir="out/reports">
                 <fileset dir="test" />
             </batchtest>
         </junit>
