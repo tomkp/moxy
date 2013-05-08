@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
         contentType = "class",
         statusCode = 201
 )
-public class ClassAnnotationTests {
+public class ClassAnnotationTest {
 
 
     @Test

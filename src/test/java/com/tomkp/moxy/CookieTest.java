@@ -8,10 +8,8 @@ import org.junit.runner.RunWith;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(MoxyRunner.class)
-public class CookieTests {
+public class CookieTest {
 
 
     @Test

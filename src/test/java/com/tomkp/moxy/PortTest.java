@@ -7,11 +7,9 @@ import org.junit.runner.RunWith;
 
 import java.net.URL;
 
-import static org.junit.Assert.*;
-
 
 @RunWith(MoxyRunner.class)
-public class PortTests {
+public class PortTest {
 
 
     @Test

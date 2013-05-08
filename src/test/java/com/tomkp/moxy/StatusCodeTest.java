@@ -11,7 +11,7 @@ import java.net.URL;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MoxyRunner.class)
-public class StatusCodeTests {
+public class StatusCodeTest {
 
 
     @Test

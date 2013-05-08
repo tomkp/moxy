@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MoxyRunner.class)
-public class IndexedResponseTests {
+public class IndexedResponseTest {
 
 
 

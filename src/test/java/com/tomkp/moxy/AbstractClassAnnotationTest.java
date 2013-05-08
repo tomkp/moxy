@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 @RunWith(MoxyRunner.class)
 @Moxy(port = 9002)
 @Ignore
-public abstract class AbstractClassAnnotationTests {
+public abstract class AbstractClassAnnotationTest {
 
 
 

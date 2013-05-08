@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.net.URL;
 
 
-public class ExtendClassAnnotationTests extends AbstractClassAnnotationTests {
+public class ExtendClassAnnotationTest extends AbstractClassAnnotationTest {
 
 
     @Test

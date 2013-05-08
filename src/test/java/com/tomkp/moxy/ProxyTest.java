@@ -11,11 +11,11 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MoxyRunner.class)
-public class ProxyTests {
+public class ProxyTest {
 
 
 

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(MoxyRunner.class)
-public class Examples {
+public class ExamplesTest {
 
     @Test
     @Moxy(response = "hello world")

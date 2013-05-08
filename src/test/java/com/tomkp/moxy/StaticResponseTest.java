@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MoxyRunner.class)
-public class StaticResponseTests {
+public class StaticResponseTest {
 
 
     @Test
