@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.readers.AbsoluteFileReader;
 import com.tomkp.moxy.readers.RelativeFileReader;
+import com.tomkp.moxy.readers.Utf8StringReader;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class RequestHandler extends AbstractHandler {
     private final ResponseWriter responseWriter;
     private final RelativeFileReader relativeFileReader;
     private final AbsoluteFileReader absoluteFileReader;
-    private final com.tomkp.moxy.readers.StringReader stringReader;
+    private final Utf8StringReader utf8StringReader;
 
 
     private List<Moxy> moxies;
@@ -55,7 +56,7 @@ public class RequestHandler extends AbstractHandler {
         responseWriter = new ResponseWriter();
         relativeFileReader = new RelativeFileReader();
         absoluteFileReader = new AbsoluteFileReader();
-        stringReader = new com.tomkp.moxy.readers.StringReader();
+        utf8StringReader = new Utf8StringReader();
 
         Requests.reset();
     }
@@ -163,7 +164,7 @@ public class RequestHandler extends AbstractHandler {
 
 
     private void writeStringToResponse(HttpServletResponse httpServletResponse, String response) throws IOException {
-        InputStream inputStream = stringReader.readString(response);
+        InputStream inputStream = utf8StringReader.readString(response);
         responseWriter.writeResponse(httpServletResponse, inputStream);
     }
 
