@@ -1,6 +1,9 @@
 package com.tomkp.moxy.junit;
 
+import com.tomkp.moxy.FilenameGenerator;
 import com.tomkp.moxy.RequestHandler;
+import com.tomkp.moxy.RequestProxy;
+import com.tomkp.moxy.ResponseWriter;
 import com.tomkp.moxy.annotations.Moxy;
 import org.eclipse.jetty.server.Server;
 import org.junit.runner.notification.RunNotifier;
@@ -47,7 +50,12 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
             LOG.info("start server on port {}", port);
             Server server = new Server(port);
             try {
-                RequestHandler handler = new RequestHandler(testClass, moxies);
+
+                FilenameGenerator filenameGenerator = new FilenameGenerator();
+                ResponseWriter responseWriter = new ResponseWriter();
+                RequestProxy proxyRequest = new RequestProxy(responseWriter);
+
+                RequestHandler handler = new RequestHandler(filenameGenerator, proxyRequest, testClass, moxies);
                 server.setHandler(handler);
                 server.start();
                 super.runChild(method, notifier);

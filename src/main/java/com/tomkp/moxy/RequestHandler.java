@@ -2,9 +2,9 @@ package com.tomkp.moxy;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
-import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;
+import com.tomkp.moxy.readers.AbsoluteFileReader;
+import com.tomkp.moxy.readers.RelativeFileReader;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.slf4j.Logger;
@@ -14,12 +14,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpCookie;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,15 +30,33 @@ public class RequestHandler extends AbstractHandler {
     public static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
+    private final FilenameGenerator filenameGenerator;
+    private final RequestProxy proxyRequest;
+
+    private final ResponseWriter responseWriter;
+    private final RelativeFileReader relativeFileReader;
+    private final AbsoluteFileReader absoluteFileReader;
+    private final com.tomkp.moxy.readers.StringReader stringReader;
+
 
     private List<Moxy> moxies;
     private Class<?> testClass;
     private int index = 0;
 
 
-    public RequestHandler(Class<?> testClass, List<Moxy> moxies) {
+    public RequestHandler(FilenameGenerator filenameGenerator,
+                          RequestProxy proxyRequest,
+                          Class<?> testClass,
+                          List<Moxy> moxies) {
+        this.filenameGenerator = filenameGenerator;
+        this.proxyRequest = proxyRequest;
         this.testClass = testClass;
         this.moxies = moxies;
+        responseWriter = new ResponseWriter();
+        relativeFileReader = new RelativeFileReader();
+        absoluteFileReader = new AbsoluteFileReader();
+        stringReader = new com.tomkp.moxy.readers.StringReader();
+
         Requests.reset();
     }
 
@@ -71,47 +89,49 @@ public class RequestHandler extends AbstractHandler {
             String[] responses = moxyData.getResponses();
             boolean indexed = moxyData.getIndexed();
 
-            if (responses.length > 0 && files.length > 0) {
+            int fileCount = files.length;
+
+            if (responses.length > 0 && fileCount > 0) {
                 throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
             String proxy = moxyData.getProxy();
+
+
             if (!proxy.isEmpty()) {
 
-                // generate the correct url to proxy to
-                URL url = createProxyUrl(httpServletRequest, proxy);
-
-                // perform http GET / POST / PUT / DELETE
-                InputSupplier<? extends InputStream> inputSupplier = executeProxyHttpRequest(httpServletRequest, httpServletResponse, url);
+                InputStream inputStream = proxyRequest.proxyRequest(httpServletRequest, httpServletResponse, proxy);
 
                 // record the reponse to a file
-                if (files.length > 0 || indexed)  {
+                if (fileCount > 0 || indexed)  {
 
-                    String filename = generateFilename(files, indexed);
+                    String filename = filenameGenerator.generateFilename(files, indexed, index);
 
-                    saveResponseToFile(inputSupplier, filename);
+                    saveResponseToFile(testClass, filename, inputStream);
                 }
+
 
             } else {
 
                 LOG.info("current index {}, indexed {}", index, indexed);
-                LOG.info("{} files, {} static responses", files.length, responses.length);
+                LOG.info("{} files, {} static responses", fileCount, responses.length);
 
                 if (responses.length > index) {
 
                     // write response body using annotation value
                     String response = responses[index];
-                    writeResponse(httpServletResponse, response);
+                    writeStringToResponse(httpServletResponse, response);
 
-                } else if (files.length > index || indexed) {
+                } else if (fileCount > index || indexed) {
 
                     // write response using file contents
-                    String filename = generateFilename(files, indexed);
+                    String filename = filenameGenerator.generateFilename(files, indexed, index);
 
                     if (filename.startsWith("/")) {
                         writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
-                        writeRelativeFileToResponse(httpServletResponse, filename);
+                        URL resource = testClass.getResource(".");
+                        writeRelativeFileToResponse(httpServletResponse, resource.getPath(), filename);
                     }
                 }
             }
@@ -124,88 +144,33 @@ public class RequestHandler extends AbstractHandler {
     }
 
 
-    private String generateFilename(String[] files, boolean indexed) {
-        String filename;
-        if (indexed) {
-            filename = files[0];
-            filename = filename.replaceAll("\\$", String.valueOf(index + 1));
-        } else {
-            filename = files[index];
-        }
-        LOG.info("filename: '{}'", filename);
-        return filename;
-    }
 
 
     // response writers
 
-
-    private void writeRelativeFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
-        URL resource = testClass.getResource(".");
-        File file = new File(resource.getPath(), filename);
-        InputSupplier<FileInputStream> inputSupplier = Files.newInputStreamSupplier(file);
-        FileInputStream inputStream = inputSupplier.getInput();
-        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+    private void writeRelativeFileToResponse(HttpServletResponse httpServletResponse, String resourcePath, String filename) throws IOException {
+        InputStream inputStream = relativeFileReader.readRelativeFile(resourcePath, filename);
+        responseWriter.writeResponse(httpServletResponse, inputStream);
     }
+
 
 
     private void writeAbsoluteFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
-        InputStream inputStream = this.getClass().getResourceAsStream(filename);
-        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
+        InputStream inputStream = absoluteFileReader.readAbsoluteFile(testClass, filename);
+        responseWriter.writeResponse(httpServletResponse, inputStream);
     }
 
 
-    private void writeResponse(HttpServletResponse httpServletResponse, String response) throws IOException {
-        InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
-        ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
-    }
 
-
-    // http methods
-
-
-    private InputSupplier<? extends InputStream> executeProxyHttpRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, URL url) throws IOException {
-        InputSupplier<? extends InputStream> inputSupplier;
-        String method = httpServletRequest.getMethod();
-        if (method.equalsIgnoreCase("GET")) {
-            inputSupplier = httpGet(httpServletResponse, url);
-        } else {
-            inputSupplier = httpPost(httpServletRequest, httpServletResponse, url);
-        }
-        return inputSupplier;
-    }
-
-
-    private InputSupplier<? extends InputStream> httpGet(HttpServletResponse httpServletResponse, URL url) throws IOException {
-        InputSupplier<? extends InputStream> inputSupplier = Resources.newInputStreamSupplier(url);
-        ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
-        return inputSupplier;
-    }
-
-
-    private InputSupplier<? extends InputStream> httpPost(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, URL url) throws IOException {
-        String method = httpServletRequest.getMethod();
-        byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
-        byte[] responseBytes = write(url, requestBytes, method);
-        InputSupplier<? extends InputStream> inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
-        ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
-        return inputSupplier;
-    }
-
-
-    private byte[] write(URL url, byte[] body, String method) throws IOException {
-        HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-        httpURLConnection.setDoOutput(true);
-        httpURLConnection.setRequestMethod(method);
-        InputSupplier<ByteArrayInputStream> inputSupplier = ByteStreams.newInputStreamSupplier(body);
-        ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
-        return ByteStreams.toByteArray(httpURLConnection.getInputStream());
+    private void writeStringToResponse(HttpServletResponse httpServletResponse, String response) throws IOException {
+        InputStream inputStream = stringReader.readString(response);
+        responseWriter.writeResponse(httpServletResponse, inputStream);
     }
 
 
     // capture
 
-    private void saveResponseToFile(InputSupplier<? extends InputStream> inputSupplier, String filename) throws IOException {
+    private void saveResponseToFile(Class<?> testClass, String filename, InputStream inputStream) throws IOException {
         URL resource = testClass.getResource(".");
         File file = new File(resource.getPath(), filename);
         if (!file.exists()) {
@@ -214,28 +179,15 @@ public class RequestHandler extends AbstractHandler {
             LOG.info("file '{}' created '{}'", file, created);
         }
 
-        InputStream inputStream = inputSupplier.getInput();
         ByteStreams.copy(inputStream, new FileOutputStream(file));
     }
 
 
-    //
+    //....
 
 
-    private URL createProxyUrl(HttpServletRequest httpServletRequest, String proxy) throws MalformedURLException {
-        String pathInfo = httpServletRequest.getPathInfo();
-        LOG.info("pathInfo: '{}'", pathInfo);
-        String queryString = httpServletRequest.getQueryString();
-        LOG.info("queryString: '{}'", queryString);
-        if (queryString == null) {
-            queryString = "";
-        } else {
-            queryString = "?" + queryString;
-        }
-        URL url = new URL(proxy + pathInfo + queryString);
-        LOG.info("proxy to '{}'", url);
-        return url;
-    }
+
+
 
 
     private int getStatusCode(int[] statusCodes) {
