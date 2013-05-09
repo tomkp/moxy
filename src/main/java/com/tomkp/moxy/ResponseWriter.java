@@ -9,7 +9,7 @@ import java.io.InputStream;
 public class ResponseWriter {
 
 
-    void writeResponse(HttpServletResponse httpServletResponse, InputStream inputStream) throws IOException {
+    public void writeResponse(HttpServletResponse httpServletResponse, InputStream inputStream) throws IOException {
         ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
     }
 
