@@ -50,31 +50,25 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
         if (moxies.size() > 0) {
             int port = selectPort(moxies);
 
-
             FilenameGenerator filenameGenerator = new FilenameGenerator();
             HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
+
+            ResponseWriter responseWriter = new ResponseWriter(httpResponseWriter);
             RequestProxy proxyRequest = new RequestProxy(httpResponseWriter);
 
             String path = testClass.getResource(".").getPath();
 
-
             MoxyRequestHandler handler = new MoxyRequestHandler(
                     filenameGenerator,
                     proxyRequest,
-                    new ResponseWriter(httpResponseWriter),
+                    responseWriter,
                     path,
                     moxies);
 
-
-
             HttpServer httpServer = new EmbeddedJetty();
-
             httpServer.start(port, handler);
-
             super.runChild(method, notifier);
-
             httpServer.stop();
-
         }
         long end = System.currentTimeMillis();
         LOG.info("" + (end - start) + "ms");
