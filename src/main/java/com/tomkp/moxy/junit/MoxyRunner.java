@@ -3,9 +3,6 @@ package com.tomkp.moxy.junit;
 import com.tomkp.moxy.*;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.jetty.EmbeddedJetty;
-import com.tomkp.moxy.readers.AbsoluteFileReader;
-import com.tomkp.moxy.readers.RelativeFileReader;
-import com.tomkp.moxy.readers.Utf8StringReader;
 import com.tomkp.moxy.writers.AbsoluteFileResponseWriter;
 import com.tomkp.moxy.writers.RelativeFileResponseWriter;
 import com.tomkp.moxy.writers.Utf8StringResponseWriter;
@@ -62,9 +59,9 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
             MoxyRequestHandler handler = new MoxyRequestHandler(
                     filenameGenerator,
                     proxyRequest,
-                    new RelativeFileResponseWriter(responseWriter, new RelativeFileReader()),
-                    new AbsoluteFileResponseWriter(responseWriter, new AbsoluteFileReader()),
-                    new Utf8StringResponseWriter(responseWriter, new Utf8StringReader()),
+                    new RelativeFileResponseWriter(responseWriter),
+                    new AbsoluteFileResponseWriter(responseWriter),
+                    new Utf8StringResponseWriter(responseWriter),
                     path,
                     moxies);
 
