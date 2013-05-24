@@ -235,7 +235,7 @@ Multiple content types;
 ```
 
 
-Indexed Responses
+Responses from indexed absolute files
 
 
 ```java
@@ -248,7 +248,13 @@ Indexed Responses
         assertEquals("<p>absolute indexed 3</p>", readUrl());
     }
 
+```
 
+
+Responses from indexed relative files
+
+
+```java
 
     @Test
     @Moxy(file = "relative.$.xml", indexed = true)
@@ -258,6 +264,13 @@ Indexed Responses
         assertEquals("<p>relative indexed 3</p>", readUrl());
     }
 
+```
+
+
+Capture proxied responses in indexed files
+
+
+```java
 
     @Test
     @Moxy(proxy = "http://www.google.com/", file = "google.$.txt", indexed = true)
@@ -284,7 +297,8 @@ Indexed Responses
 ```
 
 
-Verify Requests
+Verify Request Parameters
+
 
 ```java
 
@@ -295,6 +309,13 @@ Verify Requests
         assertArrayEquals(new String[] {"b", "c"}, Requests.getParameters().get(0).get("a"));
     }
 
+```
+
+
+Verify Request Headers
+
+
+```java
 
     @Test
     @Moxy
@@ -309,6 +330,13 @@ Verify Requests
         assertEquals("application/x-www-form-urlencoded", Requests.getHeaders().get(0).get("Content-Type"));
     }
 
+```
+
+
+Verify Query String
+
+
+```java
 
     @Test
     @Moxy
@@ -317,6 +345,13 @@ Verify Requests
         assertEquals("a=b&a=c", Requests.getQueryStrings().get(0));
     }
 
+```
+
+
+Verify Request URL
+
+
+```java
 
     @Test
     @Moxy
@@ -325,6 +360,12 @@ Verify Requests
         assertEquals("/context/path.html", Requests.getRequestUris().get(0));
     }
 
+```
+
+Verify Path Info
+
+
+```java
 
     @Test
     @Moxy
