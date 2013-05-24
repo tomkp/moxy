@@ -10,26 +10,20 @@ public class EmbeddedJetty implements HttpServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(EmbeddedJetty.class);
 
-
     private Server server;
 
 
-
     public void start(int port, MoxyRequestHandler handler) {
-
         LOG.info("start server on port {}", port);
-        server = new Server(port);
 
         try {
-
+            server = new Server(port);
             server.setHandler(new JettyRequestHandler(handler));
             server.start();
-
         } catch (Exception e) {
             throw new RuntimeException("error starting server", e);
         }
     }
-
 
 
     public void stop() {

@@ -1,4 +1,4 @@
-package com.tomkp.moxy;
+package com.tomkp.moxy.writers;
 
 import com.google.common.io.ByteStreams;
 

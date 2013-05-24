@@ -2,7 +2,6 @@ package com.tomkp.moxy.writers;
 
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
-import com.tomkp.moxy.HttpResponseWriter;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;

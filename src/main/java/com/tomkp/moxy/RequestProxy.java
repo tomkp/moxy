@@ -3,6 +3,7 @@ package com.tomkp.moxy;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
+import com.tomkp.moxy.writers.HttpResponseWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

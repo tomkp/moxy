@@ -51,15 +51,12 @@ public class MoxyRequestHandler {
 
     public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-
         Requests.capture(httpServletRequest);
 
         try {
-
             MoxyData moxyData = new MoxyData(moxies);
 
             int[] statusCodes = moxyData.getStatusCodes();
-
             int statusCode = getStatusCode(statusCodes);
             List<Cookie> httpCookies = getCookies(moxyData.getCookies());
 
@@ -80,8 +77,6 @@ public class MoxyRequestHandler {
             }
 
             String proxy = moxyData.getProxy();
-
-
             if (!proxy.isEmpty()) {
 
                 InputStream inputStream = proxyRequest.proxyRequest(httpServletRequest, httpServletResponse, proxy);
@@ -90,12 +85,8 @@ public class MoxyRequestHandler {
                 if (fileCount > 0 || indexed)  {
 
                     String filename = filenameGenerator.generateFilename(files, indexed, index);
-
-
                     saveResponseToFile(path, filename, inputStream);
                 }
-
-
             } else {
 
                 LOG.info("current index {}, indexed {}", index, indexed);
@@ -115,7 +106,6 @@ public class MoxyRequestHandler {
                     if (filename.startsWith("/")) {
                         responseWriter.writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
-
                         responseWriter.writeRelativeFileToResponse(httpServletResponse, path, filename);
                     }
                 }
@@ -146,10 +136,6 @@ public class MoxyRequestHandler {
 
 
     //....
-
-
-
-
 
 
     private int getStatusCode(int[] statusCodes) {

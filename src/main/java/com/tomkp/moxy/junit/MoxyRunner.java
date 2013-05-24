@@ -1,8 +1,12 @@
 package com.tomkp.moxy.junit;
 
-import com.tomkp.moxy.*;
+import com.tomkp.moxy.FilenameGenerator;
+import com.tomkp.moxy.HttpServer;
+import com.tomkp.moxy.MoxyRequestHandler;
+import com.tomkp.moxy.RequestProxy;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.jetty.EmbeddedJetty;
+import com.tomkp.moxy.writers.HttpResponseWriter;
 import com.tomkp.moxy.writers.ResponseWriter;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
