@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>8.1.4.v20120524</version>
+            <version>7.5.1.v20110908</version>
         </dependency>
 
         <!-- servlet -->

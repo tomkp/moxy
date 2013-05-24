@@ -1,11 +1,14 @@
 package com.tomkp.moxy.junit;
 
-import com.tomkp.moxy.FilenameGenerator;
-import com.tomkp.moxy.RequestHandler;
-import com.tomkp.moxy.RequestProxy;
-import com.tomkp.moxy.ResponseWriter;
+import com.tomkp.moxy.*;
 import com.tomkp.moxy.annotations.Moxy;
-import org.eclipse.jetty.server.Server;
+import com.tomkp.moxy.jetty.EmbeddedJetty;
+import com.tomkp.moxy.readers.AbsoluteFileReader;
+import com.tomkp.moxy.readers.RelativeFileReader;
+import com.tomkp.moxy.readers.Utf8StringReader;
+import com.tomkp.moxy.writers.AbsoluteFileResponseWriter;
+import com.tomkp.moxy.writers.RelativeFileResponseWriter;
+import com.tomkp.moxy.writers.Utf8StringResponseWriter;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -47,22 +50,34 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
 
         if (moxies.size() > 0) {
             int port = selectPort(moxies);
-            LOG.info("start server on port {}", port);
-            Server server = new Server(port);
-            try {
 
-                FilenameGenerator filenameGenerator = new FilenameGenerator();
-                ResponseWriter responseWriter = new ResponseWriter();
-                RequestProxy proxyRequest = new RequestProxy(responseWriter);
 
-                RequestHandler handler = new RequestHandler(filenameGenerator, proxyRequest, testClass, moxies);
-                server.setHandler(handler);
-                server.start();
-                super.runChild(method, notifier);
-                server.stop();
-            } catch (Exception e) {
-                throw new RuntimeException("error running server", e);
-            }
+            FilenameGenerator filenameGenerator = new FilenameGenerator();
+            ResponseWriter responseWriter = new ResponseWriter();
+            RequestProxy proxyRequest = new RequestProxy(responseWriter);
+
+            String path = testClass.getResource(".").getPath();
+
+
+            MoxyRequestHandler handler = new MoxyRequestHandler(
+                    filenameGenerator,
+                    proxyRequest,
+                    new RelativeFileResponseWriter(responseWriter, new RelativeFileReader()),
+                    new AbsoluteFileResponseWriter(responseWriter, new AbsoluteFileReader()),
+                    new Utf8StringResponseWriter(responseWriter, new Utf8StringReader()),
+                    path,
+                    moxies);
+
+
+
+            HttpServer httpServer = new EmbeddedJetty();
+
+            httpServer.start(port, handler);
+
+            super.runChild(method, notifier);
+
+            httpServer.stop();
+
         }
         long end = System.currentTimeMillis();
         LOG.info("" + (end - start) + "ms");

@@ -3,15 +3,12 @@ package com.tomkp.moxy;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.tomkp.moxy.annotations.Moxy;
-import com.tomkp.moxy.readers.AbsoluteFileReader;
-import com.tomkp.moxy.readers.RelativeFileReader;
-import com.tomkp.moxy.readers.Utf8StringReader;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import com.tomkp.moxy.writers.AbsoluteFileResponseWriter;
+import com.tomkp.moxy.writers.RelativeFileResponseWriter;
+import com.tomkp.moxy.writers.Utf8StringResponseWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,13 +17,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpCookie;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RequestHandler extends AbstractHandler {
+public class MoxyRequestHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
 
     public static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
@@ -34,40 +30,37 @@ public class RequestHandler extends AbstractHandler {
     private final FilenameGenerator filenameGenerator;
     private final RequestProxy proxyRequest;
 
-    private final ResponseWriter responseWriter;
-    private final RelativeFileReader relativeFileReader;
-    private final AbsoluteFileReader absoluteFileReader;
-    private final Utf8StringReader utf8StringReader;
 
+    private final RelativeFileResponseWriter relativeFileResponseWriter;
+    private final AbsoluteFileResponseWriter absoluteFileResponseWriter;
+    private final Utf8StringResponseWriter utf8StringResponseWriter;
 
     private List<Moxy> moxies;
-    private Class<?> testClass;
+    private String path;
     private int index = 0;
 
 
-    public RequestHandler(FilenameGenerator filenameGenerator,
-                          RequestProxy proxyRequest,
-                          Class<?> testClass,
-                          List<Moxy> moxies) {
+    public MoxyRequestHandler(FilenameGenerator filenameGenerator,
+                              RequestProxy proxyRequest,
+                              RelativeFileResponseWriter relativeFileResponseWriter,
+                              AbsoluteFileResponseWriter absoluteFileResponseWriter,
+                              Utf8StringResponseWriter utf8StringResponseWriter,
+                              String path,
+                              List<Moxy> moxies) {
         this.filenameGenerator = filenameGenerator;
         this.proxyRequest = proxyRequest;
-        this.testClass = testClass;
+        this.relativeFileResponseWriter = relativeFileResponseWriter;
+        this.absoluteFileResponseWriter = absoluteFileResponseWriter;
+        this.utf8StringResponseWriter = utf8StringResponseWriter;
+        this.path = path;
         this.moxies = moxies;
-        responseWriter = new ResponseWriter();
-        relativeFileReader = new RelativeFileReader();
-        absoluteFileReader = new AbsoluteFileReader();
-        utf8StringReader = new Utf8StringReader();
 
         Requests.reset();
     }
 
 
-    @Override
-    public void handle(String path, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
-        String method = httpServletRequest.getMethod();
-
-        LOG.info("handle request, method '{}', path '{}'", method, path);
 
         Requests.capture(httpServletRequest);
 
@@ -93,7 +86,7 @@ public class RequestHandler extends AbstractHandler {
             int fileCount = files.length;
 
             if (responses.length > 0 && fileCount > 0) {
-                throw new IOException("You must annotate your test with either 'responses' or 'files', but not both");
+                throw new RuntimeException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
             String proxy = moxyData.getProxy();
@@ -108,7 +101,8 @@ public class RequestHandler extends AbstractHandler {
 
                     String filename = filenameGenerator.generateFilename(files, indexed, index);
 
-                    saveResponseToFile(testClass, filename, inputStream);
+
+                    saveResponseToFile(path, filename, inputStream);
                 }
 
 
@@ -121,7 +115,7 @@ public class RequestHandler extends AbstractHandler {
 
                     // write response body using annotation value
                     String response = responses[index];
-                    writeStringToResponse(httpServletResponse, response);
+                    utf8StringResponseWriter.writeStringToResponse(httpServletResponse, response);
 
                 } else if (fileCount > index || indexed) {
 
@@ -129,51 +123,28 @@ public class RequestHandler extends AbstractHandler {
                     String filename = filenameGenerator.generateFilename(files, indexed, index);
 
                     if (filename.startsWith("/")) {
-                        writeAbsoluteFileToResponse(httpServletResponse, filename);
+                        absoluteFileResponseWriter.writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
-                        URL resource = testClass.getResource(".");
-                        writeRelativeFileToResponse(httpServletResponse, resource.getPath(), filename);
+
+                        relativeFileResponseWriter.writeRelativeFileToResponse(httpServletResponse, path, filename);
                     }
                 }
             }
 
             index++;
-
-        } finally {
-            request.setHandled(true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
 
 
 
-    // response writers
-
-    private void writeRelativeFileToResponse(HttpServletResponse httpServletResponse, String resourcePath, String filename) throws IOException {
-        InputStream inputStream = relativeFileReader.readRelativeFile(resourcePath, filename);
-        responseWriter.writeResponse(httpServletResponse, inputStream);
-    }
-
-
-
-    private void writeAbsoluteFileToResponse(HttpServletResponse httpServletResponse, String filename) throws IOException {
-        InputStream inputStream = absoluteFileReader.readAbsoluteFile(testClass, filename);
-        responseWriter.writeResponse(httpServletResponse, inputStream);
-    }
-
-
-
-    private void writeStringToResponse(HttpServletResponse httpServletResponse, String response) throws IOException {
-        InputStream inputStream = utf8StringReader.readString(response);
-        responseWriter.writeResponse(httpServletResponse, inputStream);
-    }
-
 
     // capture
 
-    private void saveResponseToFile(Class<?> testClass, String filename, InputStream inputStream) throws IOException {
-        URL resource = testClass.getResource(".");
-        File file = new File(resource.getPath(), filename);
+    private void saveResponseToFile(String path, String filename, InputStream inputStream) throws IOException {
+        File file = new File(path, filename);
         if (!file.exists()) {
             Files.createParentDirs(file);
             boolean created = file.createNewFile();
