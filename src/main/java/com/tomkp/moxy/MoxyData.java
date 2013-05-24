@@ -1,10 +1,21 @@
 package com.tomkp.moxy;
 
 import com.tomkp.moxy.annotations.Moxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.Cookie;
+import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MoxyData {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MoxyData.class);
+
+    private static final int DEFAULT_STATUS = 200;
+    private static final String DEFAULT_CONTENT_TYPE = "text/plain";
+
 
     private List<Moxy> moxies;
 
@@ -46,6 +57,38 @@ public class MoxyData {
         return cookies;
     }
 
+
+    public List<Cookie> getCookies(int index) {
+        String[] cookies = getCookies();
+        List<Cookie> httpCookies = new ArrayList<Cookie>();
+        if (cookies != null && cookies.length > 1) {
+            String cookie = cookies[index];
+            LOG.info("cookie: '{}'", cookie);
+            httpCookies = createCookies(cookie);
+        } else if (cookies != null && cookies.length == 1) {
+            String cookie = cookies[0];
+            LOG.info("cookie: '{}'", cookie);
+            httpCookies = createCookies(cookie);
+        }
+        return httpCookies;
+    }
+
+
+    private List<Cookie> createCookies(String cookieString) {
+        List<HttpCookie> httpCookies = HttpCookie.parse(cookieString);
+        List<Cookie> cookies = new ArrayList<Cookie>();
+        for (HttpCookie httpCookie : httpCookies) {
+            Cookie cookie = new Cookie(httpCookie.getName(), httpCookie.getValue());
+            cookie.setPath(httpCookie.getPath());
+            cookie.setMaxAge((int) httpCookie.getMaxAge());
+            cookie.setSecure(httpCookie.getSecure());
+            LOG.info("cookie: '{}'", cookie);
+            cookies.add(cookie);
+        }
+        return cookies;
+    }
+
+
     public String[] getContentTypes() {
         String[] contentTypes = null;
         for (Moxy moxy : moxies) {
@@ -57,6 +100,28 @@ public class MoxyData {
         return contentTypes;
     }
 
+
+    //....
+
+
+
+
+    public String getContentType(int index) {
+        String[] contentTypes = getContentTypes();
+        String contentType;
+        if (contentTypes != null && contentTypes.length > 1) {
+            contentType = contentTypes[index];
+        } else if (contentTypes != null && contentTypes.length == 1) {
+            contentType = contentTypes[0];
+        } else {
+            contentType = DEFAULT_CONTENT_TYPE;
+        }
+        LOG.info("contentType: '{}'", contentType);
+        return contentType;
+    }
+
+
+
     public int[] getStatusCodes() {
         int[] statusCodes = null;
         for (Moxy moxy : moxies) {
@@ -67,6 +132,20 @@ public class MoxyData {
         }
         return statusCodes;
     }
+
+
+    public int getStatusCode(int index) {
+        int[] statusCodes = getStatusCodes();
+        int statusCode = DEFAULT_STATUS;
+        if (statusCodes != null && statusCodes.length > 1) {
+            statusCode = statusCodes[index];
+        } else if (statusCodes != null && statusCodes.length == 1) {
+            statusCode = statusCodes[0];
+        }
+        return statusCode;
+    }
+
+
 
     public String getProxy() {
         String proxy = null;

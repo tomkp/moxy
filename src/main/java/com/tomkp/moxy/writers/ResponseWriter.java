@@ -1,13 +1,19 @@
 package com.tomkp.moxy.writers;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.Charset;
 
 public class ResponseWriter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseWriter.class);
+
 
     private final HttpResponseWriter httpResponseWriter;
 
@@ -35,4 +41,14 @@ public class ResponseWriter {
         httpResponseWriter.writeResponse(httpServletResponse, inputStream);
     }
 
+
+    public void writeResponseToFile(String path, String filename, InputStream inputStream) throws IOException {
+        File file = new File(path, filename);
+        if (!file.exists()) {
+            Files.createParentDirs(file);
+            boolean created = file.createNewFile();
+            LOG.info("file '{}' created '{}'", file, created);
+        }
+        ByteStreams.copy(inputStream, new FileOutputStream(file));
+    }
 }

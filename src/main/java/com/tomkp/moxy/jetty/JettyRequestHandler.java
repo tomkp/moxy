@@ -23,7 +23,7 @@ public class JettyRequestHandler extends AbstractHandler {
     @Override
     public void handle(String path, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
         try {
-            moxyRequestHandler.handle(httpServletRequest, httpServletResponse);
+            moxyRequestHandler.process(httpServletRequest, httpServletResponse);
         } finally {
             request.setHandled(true);
         }
