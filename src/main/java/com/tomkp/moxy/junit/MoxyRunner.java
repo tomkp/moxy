@@ -3,9 +3,7 @@ package com.tomkp.moxy.junit;
 import com.tomkp.moxy.*;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.jetty.EmbeddedJetty;
-import com.tomkp.moxy.writers.AbsoluteFileResponseWriter;
-import com.tomkp.moxy.writers.RelativeFileResponseWriter;
-import com.tomkp.moxy.writers.Utf8StringResponseWriter;
+import com.tomkp.moxy.writers.ResponseWriter;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -50,8 +48,8 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
 
 
             FilenameGenerator filenameGenerator = new FilenameGenerator();
-            ResponseWriter responseWriter = new ResponseWriter();
-            RequestProxy proxyRequest = new RequestProxy(responseWriter);
+            HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
+            RequestProxy proxyRequest = new RequestProxy(httpResponseWriter);
 
             String path = testClass.getResource(".").getPath();
 
@@ -59,9 +57,7 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
             MoxyRequestHandler handler = new MoxyRequestHandler(
                     filenameGenerator,
                     proxyRequest,
-                    new RelativeFileResponseWriter(responseWriter),
-                    new AbsoluteFileResponseWriter(responseWriter),
-                    new Utf8StringResponseWriter(responseWriter),
+                    new ResponseWriter(httpResponseWriter),
                     path,
                     moxies);
 

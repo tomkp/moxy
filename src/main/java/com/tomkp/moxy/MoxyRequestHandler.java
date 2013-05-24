@@ -3,9 +3,7 @@ package com.tomkp.moxy;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.tomkp.moxy.annotations.Moxy;
-import com.tomkp.moxy.writers.AbsoluteFileResponseWriter;
-import com.tomkp.moxy.writers.RelativeFileResponseWriter;
-import com.tomkp.moxy.writers.Utf8StringResponseWriter;
+import com.tomkp.moxy.writers.ResponseWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,16 +22,12 @@ public class MoxyRequestHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
 
-    public static final int DEFAULT_STATUS = 200;
+    private static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
     private final FilenameGenerator filenameGenerator;
     private final RequestProxy proxyRequest;
-
-
-    private final RelativeFileResponseWriter relativeFileResponseWriter;
-    private final AbsoluteFileResponseWriter absoluteFileResponseWriter;
-    private final Utf8StringResponseWriter utf8StringResponseWriter;
+    private final ResponseWriter responseWriter;
 
     private List<Moxy> moxies;
     private String path;
@@ -42,16 +36,12 @@ public class MoxyRequestHandler {
 
     public MoxyRequestHandler(FilenameGenerator filenameGenerator,
                               RequestProxy proxyRequest,
-                              RelativeFileResponseWriter relativeFileResponseWriter,
-                              AbsoluteFileResponseWriter absoluteFileResponseWriter,
-                              Utf8StringResponseWriter utf8StringResponseWriter,
+                              ResponseWriter responseWriter,
                               String path,
                               List<Moxy> moxies) {
         this.filenameGenerator = filenameGenerator;
         this.proxyRequest = proxyRequest;
-        this.relativeFileResponseWriter = relativeFileResponseWriter;
-        this.absoluteFileResponseWriter = absoluteFileResponseWriter;
-        this.utf8StringResponseWriter = utf8StringResponseWriter;
+        this.responseWriter = responseWriter;
         this.path = path;
         this.moxies = moxies;
 
@@ -115,7 +105,7 @@ public class MoxyRequestHandler {
 
                     // write response body using annotation value
                     String response = responses[index];
-                    utf8StringResponseWriter.writeStringToResponse(httpServletResponse, response);
+                    responseWriter.writeStringToResponse(httpServletResponse, response);
 
                 } else if (fileCount > index || indexed) {
 
@@ -123,10 +113,10 @@ public class MoxyRequestHandler {
                     String filename = filenameGenerator.generateFilename(files, indexed, index);
 
                     if (filename.startsWith("/")) {
-                        absoluteFileResponseWriter.writeAbsoluteFileToResponse(httpServletResponse, filename);
+                        responseWriter.writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
 
-                        relativeFileResponseWriter.writeRelativeFileToResponse(httpServletResponse, path, filename);
+                        responseWriter.writeRelativeFileToResponse(httpServletResponse, path, filename);
                     }
                 }
             }

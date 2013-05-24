@@ -21,11 +21,11 @@ public class RequestProxy {
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxy.class);
 
 
-    private ResponseWriter responseWriter;
+    private HttpResponseWriter httpResponseWriter;
 
 
-    public RequestProxy(ResponseWriter responseWriter) {
-        this.responseWriter = responseWriter;
+    public RequestProxy(HttpResponseWriter httpResponseWriter) {
+        this.httpResponseWriter = httpResponseWriter;
     }
 
 
@@ -62,7 +62,7 @@ public class RequestProxy {
 
     private InputSupplier<? extends InputStream> httpGet(HttpServletResponse httpServletResponse, URL url) throws IOException {
         InputSupplier<? extends InputStream> inputSupplier = Resources.newInputStreamSupplier(url);
-        responseWriter.writeResponse(httpServletResponse, inputSupplier.getInput());
+        httpResponseWriter.writeResponse(httpServletResponse, inputSupplier.getInput());
         return inputSupplier;
     }
 

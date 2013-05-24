@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class ResponseWriter {
+public class HttpResponseWriter {
 
 
     public void writeResponse(HttpServletResponse httpServletResponse, InputStream inputStream) throws IOException {
