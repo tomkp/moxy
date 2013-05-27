@@ -15,6 +15,7 @@ public class MoxyData {
 
     private static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
+    private static final int DEFAULT_PORT = 9001;
 
 
     private List<Moxy> moxies;
@@ -22,6 +23,23 @@ public class MoxyData {
 
     public MoxyData(List<Moxy> moxies) {
         this.moxies = moxies;
+    }
+
+
+    public boolean isEmpty() {
+        return moxies.isEmpty();
+    }
+
+
+    public int getPort() {
+        int port = DEFAULT_PORT;
+        for (Moxy moxy : moxies) {
+            if (moxy.port() != 0) {
+                port = moxy.port();
+                break;
+            }
+        }
+        return port;
     }
 
     public String[] getResponses() {
@@ -35,6 +53,7 @@ public class MoxyData {
         return responses;
     }
 
+
     public String[] getFiles() {
         String[] files = null;
         for (Moxy moxy : moxies) {
@@ -44,17 +63,6 @@ public class MoxyData {
             }
         }
         return files;
-    }
-
-    public String[] getCookies() {
-        String[] cookies = null;
-        for (Moxy moxy : moxies) {
-            cookies = moxy.cookie();
-            if (cookies != null && cookies.length > 0) {
-                break;
-            }
-        }
-        return cookies;
     }
 
 
@@ -74,38 +82,6 @@ public class MoxyData {
     }
 
 
-    private List<Cookie> createCookies(String cookieString) {
-        List<HttpCookie> httpCookies = HttpCookie.parse(cookieString);
-        List<Cookie> cookies = new ArrayList<Cookie>();
-        for (HttpCookie httpCookie : httpCookies) {
-            Cookie cookie = new Cookie(httpCookie.getName(), httpCookie.getValue());
-            cookie.setPath(httpCookie.getPath());
-            cookie.setMaxAge((int) httpCookie.getMaxAge());
-            cookie.setSecure(httpCookie.getSecure());
-            LOG.info("cookie: '{}'", cookie);
-            cookies.add(cookie);
-        }
-        return cookies;
-    }
-
-
-    public String[] getContentTypes() {
-        String[] contentTypes = null;
-        for (Moxy moxy : moxies) {
-            contentTypes = moxy.contentType();
-            if (contentTypes != null && contentTypes.length > 0) {
-                break;
-            }
-        }
-        return contentTypes;
-    }
-
-
-    //....
-
-
-
-
     public String getContentType(int index) {
         String[] contentTypes = getContentTypes();
         String contentType;
@@ -121,19 +97,6 @@ public class MoxyData {
     }
 
 
-
-    public int[] getStatusCodes() {
-        int[] statusCodes = null;
-        for (Moxy moxy : moxies) {
-            statusCodes = moxy.statusCode();
-            if (statusCodes != null && statusCodes.length > 0) {
-                break;
-            }
-        }
-        return statusCodes;
-    }
-
-
     public int getStatusCode(int index) {
         int[] statusCodes = getStatusCodes();
         int statusCode = DEFAULT_STATUS;
@@ -144,7 +107,6 @@ public class MoxyData {
         }
         return statusCode;
     }
-
 
 
     public String getProxy() {
@@ -158,6 +120,7 @@ public class MoxyData {
         return proxy;
     }
 
+
     public boolean getIndexed() {
         boolean indexed = false;
         for (Moxy moxy : moxies) {
@@ -167,6 +130,60 @@ public class MoxyData {
             }
         }
         return indexed;
+    }
+
+
+    //.....
+
+
+    private int[] getStatusCodes() {
+        int[] statusCodes = null;
+        for (Moxy moxy : moxies) {
+            statusCodes = moxy.statusCode();
+            if (statusCodes != null && statusCodes.length > 0) {
+                break;
+            }
+        }
+        return statusCodes;
+    }
+
+
+    private List<Cookie> createCookies(String cookieString) {
+        List<HttpCookie> httpCookies = HttpCookie.parse(cookieString);
+        List<Cookie> cookies = new ArrayList<Cookie>();
+        for (HttpCookie httpCookie : httpCookies) {
+            Cookie cookie = new Cookie(httpCookie.getName(), httpCookie.getValue());
+            cookie.setPath(httpCookie.getPath());
+            cookie.setMaxAge((int) httpCookie.getMaxAge());
+            cookie.setSecure(httpCookie.getSecure());
+            LOG.info("cookie: '{}'", cookie);
+            cookies.add(cookie);
+        }
+        return cookies;
+    }
+
+
+    private String[] getContentTypes() {
+        String[] contentTypes = null;
+        for (Moxy moxy : moxies) {
+            contentTypes = moxy.contentType();
+            if (contentTypes != null && contentTypes.length > 0) {
+                break;
+            }
+        }
+        return contentTypes;
+    }
+
+
+    private String[] getCookies() {
+        String[] cookies = null;
+        for (Moxy moxy : moxies) {
+            cookies = moxy.cookie();
+            if (cookies != null && cookies.length > 0) {
+                break;
+            }
+        }
+        return cookies;
     }
 
 

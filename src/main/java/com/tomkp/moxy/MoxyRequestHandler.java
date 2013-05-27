@@ -1,6 +1,5 @@
 package com.tomkp.moxy;
 
-import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.writers.ResponseWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ public class MoxyRequestHandler {
     private final RequestProxy proxyRequest;
     private final ResponseWriter responseWriter;
 
-    private List<Moxy> moxies;
+    private MoxyData moxyData;
     private String path;
     private int index = 0;
 
@@ -29,12 +28,12 @@ public class MoxyRequestHandler {
                               RequestProxy proxyRequest,
                               ResponseWriter responseWriter,
                               String path,
-                              List<Moxy> moxies) {
+                              MoxyData moxyData) {
         this.filenameGenerator = filenameGenerator;
         this.proxyRequest = proxyRequest;
         this.responseWriter = responseWriter;
         this.path = path;
-        this.moxies = moxies;
+        this.moxyData = moxyData;
 
         Requests.reset();
     }
@@ -45,8 +44,6 @@ public class MoxyRequestHandler {
         Requests.capture(httpServletRequest);
 
         try {
-            MoxyData moxyData = new MoxyData(moxies);
-
             int statusCode = moxyData.getStatusCode(index);
 
             List<Cookie> httpCookies = moxyData.getCookies(index);
