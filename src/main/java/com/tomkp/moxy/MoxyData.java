@@ -42,27 +42,43 @@ public class MoxyData {
         return port;
     }
 
-    public String[] getResponses() {
-        String[] responses = null;
-        for (Moxy moxy : moxies) {
-            responses = moxy.response();
-            if (responses != null && responses.length > 0) {
-                break;
-            }
+
+
+    public int getResponseCount() {
+        String[] responses = getResponses();
+        if (responses != null) {
+            return responses.length;
         }
-        return responses;
+        return 0;
+    }
+
+    public String getResponse(int index) {
+        String[] responses = getResponses();
+        return responses[index];
     }
 
 
-    public String[] getFiles() {
-        String[] files = null;
-        for (Moxy moxy : moxies) {
-            files = moxy.file();
-            if (files != null && files.length > 0) {
-                break;
-            }
+    public String getFilename(int index) {
+        String[] files = getFiles();
+        boolean indexed = getIndexed();
+        String filename;
+        if (indexed) {
+            filename = files[0];
+            filename = filename.replaceAll("\\$", String.valueOf(index + 1));
+        } else {
+            filename = files[index];
         }
-        return files;
+        LOG.info("filename: '{}'", filename);
+        return filename;
+    }
+
+
+    public int getFileCount() {
+        String[] files = getFiles();
+        if (files != null) {
+            return files.length;
+        }
+        return 0;
     }
 
 
@@ -184,6 +200,30 @@ public class MoxyData {
             }
         }
         return cookies;
+    }
+
+
+    private String[] getFiles() {
+        String[] files = null;
+        for (Moxy moxy : moxies) {
+            files = moxy.file();
+            if (files != null && files.length > 0) {
+                break;
+            }
+        }
+        return files;
+    }
+
+
+    private String[] getResponses() {
+        String[] responses = null;
+        for (Moxy moxy : moxies) {
+            responses = moxy.response();
+            if (responses != null && responses.length > 0) {
+                break;
+            }
+        }
+        return responses;
     }
 
 

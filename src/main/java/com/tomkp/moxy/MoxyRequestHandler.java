@@ -45,22 +45,22 @@ public class MoxyRequestHandler {
 
         try {
             int statusCode = moxyData.getStatusCode(index);
-
             List<Cookie> httpCookies = moxyData.getCookies(index);
+            String contentType = moxyData.getContentType(index);
 
             httpServletResponse.setStatus(statusCode);
             for (Cookie httpCookie : httpCookies) {
                 httpServletResponse.addCookie(httpCookie);
             }
-            httpServletResponse.setContentType(moxyData.getContentType(index));
+            httpServletResponse.setContentType(contentType);
 
-            String[] files = moxyData.getFiles();
-            String[] responses = moxyData.getResponses();
+
             boolean indexed = moxyData.getIndexed();
 
-            int fileCount = files.length;
+            int fileCount = moxyData.getFileCount();
+            int responseCount = moxyData.getResponseCount();
 
-            if (responses.length > 0 && fileCount > 0) {
+            if (responseCount > 0 && fileCount > 0) {
                 throw new RuntimeException("You must annotate your test with either 'responses' or 'files', but not both");
             }
 
@@ -71,26 +71,24 @@ public class MoxyRequestHandler {
 
                 // record the response to a file
                 if (fileCount > 0 || indexed)  {
-
-                    String filename = filenameGenerator.generateFilename(files, indexed, index);
+                    String filename = moxyData.getFilename(index);
                     responseWriter.writeResponseToFile(path, filename, inputStream);
                 }
             } else {
 
                 LOG.info("current index {}, indexed {}", index, indexed);
-                LOG.info("{} files, {} static responses", fileCount, responses.length);
+                LOG.info("{} files, {} static responses", fileCount, responseCount);
 
-                if (responses.length > index) {
+                if (responseCount > index) {
 
                     // write response body using annotation value
-                    String response = responses[index];
+                    String response = moxyData.getResponse(index);
                     responseWriter.writeStringToResponse(httpServletResponse, response);
 
                 } else if (fileCount > index || indexed) {
 
+                    String filename = moxyData.getFilename(index);
                     // write response using file contents
-                    String filename = filenameGenerator.generateFilename(files, indexed, index);
-
                     if (filename.startsWith("/")) {
                         responseWriter.writeAbsoluteFileToResponse(httpServletResponse, filename);
                     } else {
