@@ -14,8 +14,6 @@ public class MoxyRequestHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
 
-
-    private final FilenameGenerator filenameGenerator;
     private final RequestProxy proxyRequest;
     private final ResponseWriter responseWriter;
 
@@ -24,12 +22,10 @@ public class MoxyRequestHandler {
     private int index = 0;
 
 
-    public MoxyRequestHandler(FilenameGenerator filenameGenerator,
-                              RequestProxy proxyRequest,
+    public MoxyRequestHandler(RequestProxy proxyRequest,
                               ResponseWriter responseWriter,
                               String path,
                               MoxyData moxyData) {
-        this.filenameGenerator = filenameGenerator;
         this.proxyRequest = proxyRequest;
         this.responseWriter = responseWriter;
         this.path = path;

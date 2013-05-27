@@ -1,6 +1,9 @@
 package com.tomkp.moxy.junit;
 
-import com.tomkp.moxy.*;
+import com.tomkp.moxy.HttpServer;
+import com.tomkp.moxy.MoxyData;
+import com.tomkp.moxy.MoxyRequestHandler;
+import com.tomkp.moxy.RequestProxy;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.jetty.EmbeddedJetty;
 import com.tomkp.moxy.writers.HttpResponseWriter;
@@ -42,15 +45,12 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
 
             String path = testClass.getResource(".").getPath();
 
-            FilenameGenerator filenameGenerator = new FilenameGenerator();
             HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
 
             ResponseWriter responseWriter = new ResponseWriter(httpResponseWriter);
             RequestProxy proxyRequest = new RequestProxy(httpResponseWriter);
 
-
             MoxyRequestHandler handler = new MoxyRequestHandler(
-                    filenameGenerator,
                     proxyRequest,
                     responseWriter,
                     path,
