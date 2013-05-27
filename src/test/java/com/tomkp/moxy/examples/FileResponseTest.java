@@ -1,4 +1,4 @@
-package com.tomkp.moxy;
+package com.tomkp.moxy.examples;
 
 import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;

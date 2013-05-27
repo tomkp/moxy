@@ -1,4 +1,4 @@
-package com.tomkp.moxy;
+package com.tomkp.moxy.examples;
 
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.junit.MoxyRunner;

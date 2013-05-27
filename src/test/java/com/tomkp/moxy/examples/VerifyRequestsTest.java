@@ -1,15 +1,16 @@
-package com.tomkp.moxy;
+package com.tomkp.moxy.examples;
 
 import com.google.common.io.ByteStreams;
+import com.tomkp.moxy.Requests;
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.junit.MoxyRunner;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MoxyRunner.class)
@@ -21,7 +22,7 @@ public class VerifyRequestsTest {
     @Moxy
     public void verifyRequestParameters() throws Exception {
         new URL("http://localhost:9001/?a=b&a=c").openStream();
-        assertArrayEquals(new String[] {"b", "c"}, Requests.getParameters().get(0).get("a"));
+        Assert.assertArrayEquals(new String[]{"b", "c"}, Requests.getParameters().get(0).get("a"));
     }
 
 
