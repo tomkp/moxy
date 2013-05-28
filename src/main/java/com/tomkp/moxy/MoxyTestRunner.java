@@ -1,43 +1,27 @@
-package com.tomkp.moxy.junit;
+package com.tomkp.moxy;
 
-import com.tomkp.moxy.HttpServer;
-import com.tomkp.moxy.MoxyData;
-import com.tomkp.moxy.MoxyRequestHandler;
-import com.tomkp.moxy.RequestProxy;
 import com.tomkp.moxy.annotations.Moxy;
-import com.tomkp.moxy.jetty.EmbeddedJetty;
 import com.tomkp.moxy.writers.HttpResponseWriter;
 import com.tomkp.moxy.writers.ResponseWriter;
-import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.model.FrameworkMethod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MoxyRunner extends BlockJUnit4ClassRunner {
+public class MoxyTestRunner {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(MoxyRunner.class);
+    private HttpServer httpServer;
 
 
-    private Class<?> testClass;
-
-
-    public MoxyRunner(Class<?> testClass) throws Exception {
-        super(testClass);
-        this.testClass = testClass;
+    public MoxyTestRunner(HttpServer httpServer) {
+        this.httpServer = httpServer;
     }
 
 
-    @Override
-    protected void runChild(FrameworkMethod method, RunNotifier notifier) {
-        long start = System.currentTimeMillis();
-        if (LOG.isInfoEnabled()) LOG.info(testClass + "." + method.getName() + "");
+    public void initialise(Class<?> testClass, Method method) {
 
-        MoxyData moxyData = createMoxyData(method);
+        MoxyData moxyData = createMoxyData(testClass, method);
 
         if (!moxyData.isEmpty()) {
 
@@ -56,18 +40,18 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
                     path,
                     moxyData);
 
-            HttpServer httpServer = new EmbeddedJetty();
             httpServer.start(port, handler);
-            super.runChild(method, notifier);
-            httpServer.stop();
-
         }
-        long end = System.currentTimeMillis();
-        LOG.info("" + (end - start) + "ms");
     }
 
 
-    private MoxyData createMoxyData(FrameworkMethod method) {
+    public void end() {
+        httpServer.stop();
+    }
+
+
+
+    private MoxyData createMoxyData(Class<?> testClass, Method method) {
         List<Moxy> moxies = new ArrayList<Moxy>();
         Moxy moxyMethodAnnotation = method.getAnnotation(Moxy.class);
         if (moxyMethodAnnotation != null) {
@@ -89,6 +73,4 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
             addParentMoxies(moxies, superclass);
         }
     }
-
-
 }

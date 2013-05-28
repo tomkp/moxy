@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-public class Requests {
+public final class Requests {
 
     private static final Logger LOG = LoggerFactory.getLogger(Requests.class);
 
@@ -16,6 +16,10 @@ public class Requests {
     private static List<String> queryStrings;
     private static List<String> requestUris;
     private static List<String> pathInfos;
+
+
+    private Requests() {}
+
 
     public static void reset() {
         parameters = new ArrayList<Map<String, String[]>>();
@@ -86,15 +90,15 @@ public class Requests {
 
 
     private static Map<String, String> extractHeaders(HttpServletRequest httpServletRequest) {
-        Map<String, String> headers = new LinkedHashMap<String, String>();
+        Map<String, String> headerMap = new LinkedHashMap<String, String>();
         Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String headerKey = headerNames.nextElement();
             String headerValue = httpServletRequest.getHeader(headerKey);
             LOG.info("header '{}:{}'", headerKey, headerValue);
-            headers.put(headerKey, headerValue);
+            headerMap.put(headerKey, headerValue);
         }
-        return headers;
+        return headerMap;
     }
 
 }

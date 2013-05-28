@@ -3,8 +3,8 @@ package com.tomkp.moxy;
 public interface HttpServer {
 
 
-    public void start(int port, MoxyRequestHandler handler);
+    void start(int port, MoxyRequestHandler handler);
 
-    public void stop();
+    void stop();
 
 }

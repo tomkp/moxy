@@ -4,7 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.tomkp.moxy.annotations.Moxy;
-import com.tomkp.moxy.junit.MoxyRunner;
+import com.tomkp.moxy.junit.JunitMoxyRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -18,7 +18,7 @@ import java.nio.charset.Charset;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(MoxyRunner.class)
+@RunWith(JunitMoxyRunner.class)
 public class HttpPostTest {
 
 

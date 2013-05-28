@@ -1,6 +1,7 @@
 package com.tomkp.moxy.jetty;
 
 import com.tomkp.moxy.HttpServer;
+import com.tomkp.moxy.MoxyException;
 import com.tomkp.moxy.MoxyRequestHandler;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -21,16 +22,18 @@ public class EmbeddedJetty implements HttpServer {
             server.setHandler(new JettyRequestHandler(handler));
             server.start();
         } catch (Exception e) {
-            throw new RuntimeException("error starting server", e);
+            throw new MoxyException("error starting server", e);
         }
     }
 
 
     public void stop() {
         try {
-            server.stop();
+            if (server != null) {
+                server.stop();
+            }
         } catch (Exception e) {
-            throw new RuntimeException("error stopping server", e);
+            throw new MoxyException("error stopping server", e);
         }
     }
 }

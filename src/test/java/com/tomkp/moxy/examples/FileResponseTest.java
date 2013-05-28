@@ -2,7 +2,7 @@ package com.tomkp.moxy.examples;
 
 import com.google.common.io.Resources;
 import com.tomkp.moxy.annotations.Moxy;
-import com.tomkp.moxy.junit.MoxyRunner;
+import com.tomkp.moxy.junit.JunitMoxyRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(MoxyRunner.class)
+@RunWith(JunitMoxyRunner.class)
 public class FileResponseTest {
 
 

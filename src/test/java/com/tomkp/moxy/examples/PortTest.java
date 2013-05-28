@@ -1,14 +1,14 @@
 package com.tomkp.moxy.examples;
 
 import com.tomkp.moxy.annotations.Moxy;
-import com.tomkp.moxy.junit.MoxyRunner;
+import com.tomkp.moxy.junit.JunitMoxyRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.net.URL;
 
 
-@RunWith(MoxyRunner.class)
+@RunWith(JunitMoxyRunner.class)
 public class PortTest {
 
 

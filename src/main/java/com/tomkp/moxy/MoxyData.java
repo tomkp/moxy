@@ -43,7 +43,6 @@ public class MoxyData {
     }
 
 
-
     public int getResponseCount() {
         String[] responses = getResponses();
         if (responses != null) {
@@ -51,6 +50,7 @@ public class MoxyData {
         }
         return 0;
     }
+
 
     public String getResponse(int index) {
         String[] responses = getResponses();
