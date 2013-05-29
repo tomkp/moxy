@@ -125,6 +125,12 @@ public class MoxyData {
     }
 
 
+    public boolean hasProxy() {
+        String proxy = getProxy();
+        return proxy != null && !proxy.isEmpty();
+    }
+
+
     public String getProxy() {
         String proxy = null;
         for (Moxy moxy : moxies) {

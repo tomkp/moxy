@@ -1,8 +1,6 @@
 package com.tomkp.moxy;
 
 import com.tomkp.moxy.writers.ResponseWriter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +11,6 @@ import java.util.List;
 
 public class MoxyRequestHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
 
     private final RequestProxy proxyRequest;
     private final ResponseWriter responseWriter;
@@ -56,9 +53,9 @@ public class MoxyRequestHandler {
 
 
             boolean indexed = moxyData.getIndexed();
-            String proxy = moxyData.getProxy();
 
-            if (!proxy.isEmpty()) {
+
+            if (moxyData.hasProxy()) {
 
                 proxyRequest(httpServletRequest, httpServletResponse);
 

@@ -18,7 +18,8 @@ public final class Requests {
     private static List<String> pathInfos;
 
 
-    private Requests() {}
+    private Requests() {
+    }
 
 
     public static void reset() {
@@ -67,7 +68,6 @@ public final class Requests {
     //............
 
 
-
     private static void recordQueryString(String queryString) {
         queryStrings.add(queryString);
     }
@@ -92,11 +92,13 @@ public final class Requests {
     private static Map<String, String> extractHeaders(HttpServletRequest httpServletRequest) {
         Map<String, String> headerMap = new LinkedHashMap<String, String>();
         Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerKey = headerNames.nextElement();
-            String headerValue = httpServletRequest.getHeader(headerKey);
-            LOG.info("header '{}:{}'", headerKey, headerValue);
-            headerMap.put(headerKey, headerValue);
+        if (headerNames != null) {
+            while (headerNames.hasMoreElements()) {
+                String headerKey = headerNames.nextElement();
+                String headerValue = httpServletRequest.getHeader(headerKey);
+                LOG.info("header '{}:{}'", headerKey, headerValue);
+                headerMap.put(headerKey, headerValue);
+            }
         }
         return headerMap;
     }
