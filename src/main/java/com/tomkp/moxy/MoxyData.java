@@ -31,6 +31,15 @@ public class MoxyData {
     }
 
 
+    public boolean hasFiles(int index) {
+        return getFileCount() > index || getIndexed();
+    }
+
+    public boolean hasResponses(int index) {
+        return getResponseCount() > index;
+    }
+
+
     public int getPort() {
         int port = DEFAULT_PORT;
         for (Moxy moxy : moxies) {

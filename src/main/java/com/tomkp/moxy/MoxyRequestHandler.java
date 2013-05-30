@@ -41,19 +41,7 @@ public class MoxyRequestHandler {
 
             validateMoxyData();
 
-            int statusCode = moxyData.getStatusCode(index);
-            List<Cookie> httpCookies = moxyData.getCookies(index);
-            String contentType = moxyData.getContentType(index);
-
-            httpServletResponse.setStatus(statusCode);
-            for (Cookie httpCookie : httpCookies) {
-                httpServletResponse.addCookie(httpCookie);
-            }
-            httpServletResponse.setContentType(contentType);
-
-
-            boolean indexed = moxyData.getIndexed();
-
+            configureHttpHeaders(httpServletResponse);
 
             if (moxyData.hasProxy()) {
 
@@ -61,14 +49,11 @@ public class MoxyRequestHandler {
 
             } else {
 
-                int fileCount = moxyData.getFileCount();
-                int responseCount = moxyData.getResponseCount();
-
-                if (responseCount > index) {
+                if (moxyData.hasResponses(index)) {
 
                     writeResponseUsingAnnotationValue(httpServletResponse);
 
-                } else if (fileCount > index || indexed) {
+                } else if (moxyData.hasFiles(index)) {
 
                     writeResponseUsingFileContents(httpServletResponse);
 
@@ -80,6 +65,20 @@ public class MoxyRequestHandler {
             throw new MoxyException("error processing request", e);
         }
     }
+
+
+    private void configureHttpHeaders(HttpServletResponse httpServletResponse) {
+        int statusCode = moxyData.getStatusCode(index);
+        List<Cookie> httpCookies = moxyData.getCookies(index);
+        String contentType = moxyData.getContentType(index);
+
+        httpServletResponse.setStatus(statusCode);
+        for (Cookie httpCookie : httpCookies) {
+            httpServletResponse.addCookie(httpCookie);
+        }
+        httpServletResponse.setContentType(contentType);
+    }
+
 
     private void validateMoxyData() {
         int fileCount = moxyData.getFileCount();
