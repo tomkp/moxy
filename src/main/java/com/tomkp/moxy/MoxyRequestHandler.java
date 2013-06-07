@@ -39,25 +39,20 @@ public class MoxyRequestHandler {
 
         try {
 
-            validateMoxyData();
-
             configureHttpHeaders(httpServletResponse);
 
             if (moxyData.hasProxy()) {
 
                 proxyRequest(httpServletRequest, httpServletResponse);
 
-            } else {
+            } else if (moxyData.hasResponses(index)) {
 
-                if (moxyData.hasResponses(index)) {
+                writeResponseUsingAnnotationValue(httpServletResponse);
 
-                    writeResponseUsingAnnotationValue(httpServletResponse);
+            } else if (moxyData.hasFiles(index)) {
 
-                } else if (moxyData.hasFiles(index)) {
+                writeResponseUsingFileContents(httpServletResponse);
 
-                    writeResponseUsingFileContents(httpServletResponse);
-
-                }
             }
             index++;
 
@@ -79,15 +74,6 @@ public class MoxyRequestHandler {
         httpServletResponse.setContentType(contentType);
     }
 
-
-    private void validateMoxyData() {
-        int fileCount = moxyData.getFileCount();
-        int responseCount = moxyData.getResponseCount();
-
-        if (responseCount > 0 && fileCount > 0) {
-            throw new MoxyException("You must annotate your test with either 'responses' or 'files', but not both");
-        }
-    }
 
 
     private void proxyRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
@@ -121,6 +107,5 @@ public class MoxyRequestHandler {
         String response = moxyData.getResponse(index);
         responseWriter.writeStringToResponse(httpServletResponse, response);
     }
-
 
 }

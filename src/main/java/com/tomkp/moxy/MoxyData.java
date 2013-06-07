@@ -18,12 +18,13 @@ public class MoxyData {
     private static final int DEFAULT_PORT = 9001;
 
 
-    private List<Moxy> moxies;
+    private List<Moxy> moxies = new ArrayList<Moxy>();
 
 
-    public MoxyData(List<Moxy> moxies) {
-        this.moxies = moxies;
+    public void add(Moxy moxy) {
+        moxies.add(moxy);
     }
+
 
 
     public boolean isEmpty() {
