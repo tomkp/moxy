@@ -7,11 +7,11 @@ import java.lang.reflect.Method;
 
 public class MoxyTestRunner {
 
-    private HttpServer httpServer;
+    private MoxyHttpServer moxyHttpServer;
 
 
-    public MoxyTestRunner(HttpServer httpServer) {
-        this.httpServer = httpServer;
+    public MoxyTestRunner(MoxyHttpServer moxyHttpServer) {
+        this.moxyHttpServer = moxyHttpServer;
     }
 
 
@@ -38,13 +38,13 @@ public class MoxyTestRunner {
                     path,
                     moxyData);
 
-            httpServer.start(port, handler);
+            moxyHttpServer.start(port, handler);
         }
     }
 
 
     public void end() {
-        httpServer.stop();
+        moxyHttpServer.stop();
     }
 
 

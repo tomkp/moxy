@@ -91,6 +91,7 @@ public final class Requests {
 
     private static Map<String, String> extractHeaders(HttpServletRequest httpServletRequest) {
         Map<String, String> headerMap = new LinkedHashMap<String, String>();
+        @SuppressWarnings("unchecked")
         Enumeration<String> headerNames = httpServletRequest.getHeaderNames();
         if (headerNames != null) {
             while (headerNames.hasMoreElements()) {

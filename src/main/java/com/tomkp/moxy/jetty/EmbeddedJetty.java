@@ -1,13 +1,13 @@
 package com.tomkp.moxy.jetty;
 
-import com.tomkp.moxy.HttpServer;
 import com.tomkp.moxy.MoxyException;
+import com.tomkp.moxy.MoxyHttpServer;
 import com.tomkp.moxy.MoxyRequestHandler;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EmbeddedJetty implements HttpServer {
+public class EmbeddedJetty implements MoxyHttpServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(EmbeddedJetty.class);
 

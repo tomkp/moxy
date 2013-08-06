@@ -1,6 +1,6 @@
 package com.tomkp.moxy;
 
-public interface HttpServer {
+public interface MoxyHttpServer {
 
 
     void start(int port, MoxyRequestHandler handler);

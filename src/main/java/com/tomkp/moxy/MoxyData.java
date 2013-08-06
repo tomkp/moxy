@@ -55,10 +55,7 @@ public class MoxyData {
 
     public int getResponseCount() {
         String[] responses = getResponses();
-        if (responses != null) {
-            return responses.length;
-        }
-        return 0;
+        return responses.length;
     }
 
 
@@ -85,21 +82,18 @@ public class MoxyData {
 
     public int getFileCount() {
         String[] files = getFiles();
-        if (files != null) {
-            return files.length;
-        }
-        return 0;
+        return files.length;
     }
 
 
     public List<Cookie> getCookies(int index) {
         String[] cookies = getCookies();
         List<Cookie> httpCookies = new ArrayList<Cookie>();
-        if (cookies != null && cookies.length > 1) {
+        if (cookies.length > 1) {
             String cookie = cookies[index];
             LOG.info("cookie: '{}'", cookie);
             httpCookies = createCookies(cookie);
-        } else if (cookies != null && cookies.length == 1) {
+        } else if (cookies.length == 1) {
             String cookie = cookies[0];
             LOG.info("cookie: '{}'", cookie);
             httpCookies = createCookies(cookie);
@@ -111,9 +105,9 @@ public class MoxyData {
     public String getContentType(int index) {
         String[] contentTypes = getContentTypes();
         String contentType;
-        if (contentTypes != null && contentTypes.length > 1) {
+        if (contentTypes.length > 1) {
             contentType = contentTypes[index];
-        } else if (contentTypes != null && contentTypes.length == 1) {
+        } else if (contentTypes.length == 1) {
             contentType = contentTypes[0];
         } else {
             contentType = DEFAULT_CONTENT_TYPE;
@@ -126,9 +120,9 @@ public class MoxyData {
     public int getStatusCode(int index) {
         int[] statusCodes = getStatusCodes();
         int statusCode = DEFAULT_STATUS;
-        if (statusCodes != null && statusCodes.length > 1) {
+        if (statusCodes.length > 1) {
             statusCode = statusCodes[index];
-        } else if (statusCodes != null && statusCodes.length == 1) {
+        } else if (statusCodes.length == 1) {
             statusCode = statusCodes[0];
         }
         return statusCode;
@@ -137,15 +131,15 @@ public class MoxyData {
 
     public boolean hasProxy() {
         String proxy = getProxy();
-        return proxy != null && !proxy.isEmpty();
+        return !proxy.isEmpty();
     }
 
 
     public String getProxy() {
-        String proxy = null;
+        String proxy = "";
         for (Moxy moxy : moxies) {
             proxy = moxy.proxy();
-            if (proxy != null) {
+            if (proxy.isEmpty()) {
                 break;
             }
         }
@@ -169,10 +163,10 @@ public class MoxyData {
 
 
     private int[] getStatusCodes() {
-        int[] statusCodes = null;
+        int[] statusCodes = {};
         for (Moxy moxy : moxies) {
             statusCodes = moxy.statusCode();
-            if (statusCodes != null && statusCodes.length > 0) {
+            if (statusCodes.length > 0) {
                 break;
             }
         }
@@ -196,10 +190,10 @@ public class MoxyData {
 
 
     private String[] getContentTypes() {
-        String[] contentTypes = null;
+        String[] contentTypes = {};
         for (Moxy moxy : moxies) {
             contentTypes = moxy.contentType();
-            if (contentTypes != null && contentTypes.length > 0) {
+            if (contentTypes.length > 0) {
                 break;
             }
         }
@@ -208,10 +202,10 @@ public class MoxyData {
 
 
     private String[] getCookies() {
-        String[] cookies = null;
+        String[] cookies = {};
         for (Moxy moxy : moxies) {
             cookies = moxy.cookie();
-            if (cookies != null && cookies.length > 0) {
+            if (cookies.length > 0) {
                 break;
             }
         }
@@ -220,10 +214,10 @@ public class MoxyData {
 
 
     private String[] getFiles() {
-        String[] files = null;
+        String[] files = {};
         for (Moxy moxy : moxies) {
             files = moxy.file();
-            if (files != null && files.length > 0) {
+            if (files.length > 0) {
                 break;
             }
         }
@@ -232,10 +226,10 @@ public class MoxyData {
 
 
     private String[] getResponses() {
-        String[] responses = null;
+        String[] responses = {};
         for (Moxy moxy : moxies) {
             responses = moxy.response();
-            if (responses != null && responses.length > 0) {
+            if (responses.length > 0) {
                 break;
             }
         }
