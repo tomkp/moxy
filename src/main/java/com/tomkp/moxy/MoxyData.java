@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.Cookie;
 import java.net.HttpCookie;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MoxyData {
 
@@ -19,6 +21,8 @@ public class MoxyData {
 
 
     private List<Moxy> moxies = new ArrayList<Moxy>();
+
+
 
 
     public void add(Moxy moxy) {
@@ -159,6 +163,26 @@ public class MoxyData {
     }
 
 
+    public Map<String, String> getTemplate() {
+        Map<String, String> map = new HashMap<String, String>();
+        for (Moxy moxy : moxies) {
+            String[] template = moxy.template();
+            if (template.length > 0) {
+                if (template.length % 2 != 0) {
+                    throw new RuntimeException("template must consist of pairs of values, something to replace 'from' and 'to'");
+                }
+                for (int i = 0; i < template.length; i+=2) {
+                    String key = template[i];
+                    String value = template[i + 1];
+                    map.put(key, value);
+                }
+                break;
+            }
+
+        }
+        return map;
+    }
+
     //.....
 
 
@@ -235,6 +259,8 @@ public class MoxyData {
         }
         return responses;
     }
+
+
 
 
 }
