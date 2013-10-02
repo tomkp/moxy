@@ -22,15 +22,15 @@ public class MoxyRequestHandler {
     private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
 
 
-    private final MoxyData moxyData;
+    private final TestSession testSession;
     private final String path;
 
 
 
     public MoxyRequestHandler(String path,
-                              MoxyData moxyData) {
+                              TestSession testSession) {
         this.path = path;
-        this.moxyData = moxyData;
+        this.testSession = testSession;
 
         Requests.reset();
     }
@@ -44,31 +44,31 @@ public class MoxyRequestHandler {
 
             configureHttpHeaders(httpServletResponse);
 
-            if (moxyData.hasProxy()) {
+            if (testSession.hasProxy()) {
 
                 proxyRequest(httpServletRequest, httpServletResponse);
 
-            } else if (moxyData.hasResponses()) {
+            } else if (testSession.hasResponses()) {
 
-                String response = moxyData.getResponse();
+                String response = testSession.getResponse();
 
                 InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
 
-                Map<String, String> template = moxyData.getTemplate();
+                Map<String, String> template = testSession.getReplacements();
 
                 InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
 
                 ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
-            } else if (moxyData.hasFiles()) {
+            } else if (testSession.hasFiles()) {
 
                 // write response using file contents
-                String filename = moxyData.getFilename();
+                String filename = testSession.getFilename();
                 if (filename.startsWith("/")) {
 
                     InputStream inputStream = this.getClass().getResourceAsStream(filename);
 
-                    Map<String, String> template = moxyData.getTemplate();
+                    Map<String, String> template = testSession.getReplacements();
 
                     InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
 
@@ -79,7 +79,7 @@ public class MoxyRequestHandler {
                     File file = new File(path, filename);
                     InputSupplier<? extends InputStream> inputSupplier = Files.newInputStreamSupplier(file);
 
-                    Map<String, String> template = moxyData.getTemplate();
+                    Map<String, String> template = testSession.getReplacements();
 
                     inputSupplier = replace(template, inputSupplier.getInput());
 
@@ -87,7 +87,7 @@ public class MoxyRequestHandler {
 
                 }
             }
-            moxyData.increment();
+            testSession.increment();
 
         } catch (Exception e) {
             throw new MoxyException("error processing request", e);
@@ -99,9 +99,9 @@ public class MoxyRequestHandler {
 
 
     private void configureHttpHeaders(HttpServletResponse httpServletResponse) {
-        int statusCode = moxyData.getStatusCode();
-        List<Cookie> httpCookies = moxyData.getCookies();
-        String contentType = moxyData.getContentType();
+        int statusCode = testSession.getStatusCode();
+        List<Cookie> httpCookies = testSession.getCookies();
+        String contentType = testSession.getContentType();
 
         httpServletResponse.setStatus(statusCode);
         for (Cookie httpCookie : httpCookies) {
@@ -113,9 +113,9 @@ public class MoxyRequestHandler {
 
 
     private void proxyRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
-        String proxy = moxyData.getProxy();
-        boolean indexed = moxyData.getIndexed();
-        int fileCount = moxyData.getFileCount();
+        String proxy = testSession.getProxy();
+        boolean indexed = testSession.getIndexed();
+        int fileCount = testSession.getFileCount();
 
         // generate the correct url to proxy to
         URL url = createProxyUrl(httpServletRequest, proxy);
@@ -132,7 +132,7 @@ public class MoxyRequestHandler {
             inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
         }
 
-        Map<String, String> template = moxyData.getTemplate();
+        Map<String, String> template = testSession.getReplacements();
 
         inputSupplier = replace(template, inputSupplier.getInput());
 
@@ -141,7 +141,7 @@ public class MoxyRequestHandler {
 
         // record the response to a file
         if (fileCount > 0 || indexed)  {
-            String filename = moxyData.getFilename();
+            String filename = testSession.getFilename();
 
             File file = new File(path, filename);
             if (!file.exists()) {
@@ -168,7 +168,7 @@ public class MoxyRequestHandler {
 
 
     private InputSupplier<? extends InputStream> replace(Map<String, String> template, InputStream inputStream) throws IOException {
-        LOG.info("template: '{}'", template);
+        LOG.info("replace: '{}'", template);
         String str = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
         for (String from : template.keySet()) {
             String to = template.get(from);

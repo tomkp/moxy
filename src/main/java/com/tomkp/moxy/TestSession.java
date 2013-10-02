@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MoxyData {
+public class TestSession {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MoxyData.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestSession.class);
 
     private static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
@@ -168,18 +168,18 @@ public class MoxyData {
     }
 
 
-    public Map<String, String> getTemplate() {
+    public Map<String, String> getReplacements() {
         Map<String, String> map = new HashMap<String, String>();
         for (Moxy moxy : moxies) {
-            String[] template = moxy.template();
-            if (template.length > 0) {
-                if (template.length % 2 != 0) {
-                    throw new RuntimeException("template must consist of pairs of values, something to replace 'from' and 'to'");
+            String[] replacementList = moxy.replace();
+            if (replacementList.length > 0) {
+                if (replacementList.length % 2 != 0) {
+                    throw new RuntimeException("replace must consist of pairs of values, something to replace 'from' and 'to'");
                 }
-                for (int i = 0; i < template.length; i+=2) {
-                    String key = template[i];
-                    String value = template[i + 1];
-                    map.put(key, value);
+                for (int i = 0; i < replacementList.length; i+=2) {
+                    String replaceThis = replacementList[i];
+                    String withThat = replacementList[i + 1];
+                    map.put(replaceThis, withThat);
                 }
                 break;
             }

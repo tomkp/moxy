@@ -25,5 +25,5 @@ public @interface Moxy {
 
     boolean indexed() default false;
 
-    String[] template() default {};
+    String[] replace() default {};
 }

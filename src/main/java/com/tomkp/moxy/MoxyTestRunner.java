@@ -14,17 +14,17 @@ public class MoxyTestRunner {
 
     public void initialise(Class<?> testClass, Method method) {
 
-        MoxyDataFactory moxyDataFactory = new MoxyDataFactory();
+        TestSessionFactory testSessionFactory = new TestSessionFactory();
 
-        MoxyData moxyData = moxyDataFactory.createMoxyData(testClass, method);
+        TestSession testSession = testSessionFactory.createTestSession(testClass, method);
 
-        if (!moxyData.isEmpty()) {
+        if (!testSession.isEmpty()) {
 
-            int port = moxyData.getPort();
+            int port = testSession.getPort();
 
             String path = testClass.getResource(".").getPath();
 
-            MoxyRequestHandler handler = new MoxyRequestHandler(path, moxyData);
+            MoxyRequestHandler handler = new MoxyRequestHandler(path, testSession);
 
             moxyHttpServer.start(port, handler);
         }
