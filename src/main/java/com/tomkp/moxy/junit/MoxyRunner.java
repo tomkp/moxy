@@ -9,16 +9,16 @@ import org.junit.runners.model.InitializationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JunitMoxyRunner extends BlockJUnit4ClassRunner {
+public class MoxyRunner extends BlockJUnit4ClassRunner {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(JunitMoxyRunner.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MoxyRunner.class);
 
 
     private Class<?> testClass;
 
 
-    public JunitMoxyRunner(Class<?> testClass) throws InitializationError {
+    public MoxyRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
         this.testClass = testClass;
     }

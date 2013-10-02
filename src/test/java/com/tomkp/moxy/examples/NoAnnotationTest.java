@@ -1,12 +1,12 @@
 package com.tomkp.moxy.examples;
 
-import com.tomkp.moxy.junit.JunitMoxyRunner;
+import com.tomkp.moxy.junit.MoxyRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertTrue;
 
-@RunWith(JunitMoxyRunner.class)
+@RunWith(MoxyRunner.class)
 public class NoAnnotationTest {
 
 
