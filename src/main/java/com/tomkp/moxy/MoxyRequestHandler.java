@@ -26,9 +26,7 @@ public class MoxyRequestHandler {
 
 
     public MoxyRequestHandler(TestSession testSession) {
-
         this.testSession = testSession;
-
         Requests.reset();
     }
 
@@ -45,19 +43,21 @@ public class MoxyRequestHandler {
 
             if (testSession.hasProxy()) {
 
-                //proxyRequest(httpServletRequest, httpServletResponse);
+                // PROXY REQUESTS
+
                 String proxy = testSession.getProxy();
 
                 // generate the correct url to proxy to
                 URL url = createProxyUrl(httpServletRequest, proxy);
 
                 // perform http GET / POST / PUT / DELETE
-                InputSupplier<? extends InputStream> inputSupplier;
                 String method = httpServletRequest.getMethod();
 
                 if (method.equalsIgnoreCase("GET")) {
+                    // HTTP GET
                     inputStream = Resources.newInputStreamSupplier(url).getInput();
                 } else {
+                    // HTTP POST / DELETE / PUT
                     byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
                     byte[] responseBytes = write(url, requestBytes, method);
                     inputStream = ByteStreams.newInputStreamSupplier(responseBytes).getInput();
@@ -66,6 +66,8 @@ public class MoxyRequestHandler {
 
             } else if (testSession.hasResponses()) {
 
+                // RETURN STATIC RESPONSES
+
                 String response = testSession.getResponse();
 
                 inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
@@ -73,29 +75,37 @@ public class MoxyRequestHandler {
 
             } else if (testSession.hasFiles()) {
 
-                // write response using file contents
+                // RETURN RESPONSES FROM FILES
+
                 String filename = testSession.getFilename();
                 if (filename.startsWith("/")) {
 
+                    // RELATIVE FILES
                     inputStream = this.getClass().getResourceAsStream(filename);
 
                 } else {
+
+                    // ABSOLUTE FILES
 
                     File file = new File(testSession.getPath(), filename);
                     inputStream = Files.newInputStreamSupplier(file).getInput();
 
                 }
-
             }
 
-
             if (inputStream != null) {
+
+                // APPLY REPLACEMENTS
 
                 Map<String, String> template = testSession.getReplacements();
                 InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
                 ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
+
                 if (testSession.shouldSaveResponse()) {
+
+                    // SAVE RESPONSES TO FILE
+
                     String filename = testSession.getFilename();
 
                     File file = new File(testSession.getPath(), filename);
