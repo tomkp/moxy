@@ -1,41 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Moxy : Simple mocking / proxy server annotations for your integration tests " />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Moxy by tomkp</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Moxy</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
   </head>
-
   <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/tomkp/moxy">View on GitHub</a>
-
-          <h1 id="project_title">Moxy</h1>
-          <h2 id="project_tagline">Simple mocking / proxy server annotations for your integration tests </h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/tomkp/moxy/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/tomkp/moxy/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+    <div class="wrapper">
+      <header>
         <h1>Moxy</h1>
+        <p>Simple mocking / proxy server annotations for your integration tests </p>
+
+        <p class="view"><a href="https://github.com/tomkp/moxy">View the Project on GitHub <small>tomkp/moxy</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/tomkp/moxy/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/tomkp/moxy/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/tomkp/moxy">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="moxy" class="anchor" href="#moxy"><span class="octicon octicon-link"></span></a>Moxy</h1>
 
 <p>Moxy is for those times when you are <strong>absolutely convinced</strong> that you need to run integration tests against a server.</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
 <span class="nd">@RunWith</span><span class="o">(</span><span class="n">MoxyRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyTest</span> <span class="o">{</span>
 
@@ -52,17 +50,20 @@
 
 <p><a href="https://github.com/tomkp/moxy#examples">Check out some more examples</a></p>
 
-<h2>Usage</h2>
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
 
 <p>Annotate your test classes with <code>@RunWith(MoxyRunner.class)</code></p>
 
 <p>Annotate your tests with <code>@Moxy</code></p>
 
-<h2>Configuration</h2>
+<h2>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
 
 <p>You can configure the response body and headers.</p>
 
-<h3>response body</h3>
+<h3>
+<a name="response-body" class="anchor" href="#response-body"><span class="octicon octicon-link"></span></a>response body</h3>
 
 <p>There are two ways of responding. You can either load the response from a file, or you can inline the response n the annotation.</p>
 
@@ -71,7 +72,8 @@
 <code>response</code> this allows you to inline your response</li>
 <li>
 <code>file</code> the response body is loaded from a file (using either a relative or absolute path)</li>
-</ul><h3>response headers</h3>
+</ul><h3>
+<a name="response-headers" class="anchor" href="#response-headers"><span class="octicon octicon-link"></span></a>response headers</h3>
 
 <ul>
 <li>
@@ -95,7 +97,8 @@
 
 <p><code>@Moxy</code> - all requests get the default status code <code>200</code></p>
 </li>
-</ul><h2>Why you shouldn't use Moxy</h2>
+</ul><h2>
+<a name="why-you-shouldnt-use-moxy" class="anchor" href="#why-you-shouldnt-use-moxy"><span class="octicon octicon-link"></span></a>Why you shouldn't use Moxy</h2>
 
 <p>Before using Moxy you should ask yourself if it is truly necessary.</p>
 
@@ -105,11 +108,12 @@
 
 <p>If you insist on using Moxy - then keep the tests to a minimum.</p>
 
-<h2>Examples</h2>
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
 
 <p>Mock server running on port 9001 returns <code>hello world</code> for all requests</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
 <span class="nd">@RunWith</span><span class="o">(</span><span class="n">MoxyRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Examples</span> <span class="o">{</span>
 
@@ -126,7 +130,7 @@
 
 <p>Multiple responses</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">response</span> <span class="o">=</span> <span class="o">{</span><span class="s">"hello"</span><span class="o">,</span> <span class="s">"goodbye"</span><span class="o">})</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">multipleResponses</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -139,7 +143,7 @@
 
 <p>JSON response</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">response</span> <span class="o">=</span> <span class="s">"{\"id\": 1, \"mood\": \"Adventurous\"}"</span><span class="o">,</span> <span class="n">contentType</span> <span class="o">=</span> <span class="s">"application/json"</span><span class="o">)</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">staticResponse</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -151,7 +155,7 @@
 
 <p>JSON from a relative file</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
 
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">file</span> <span class="o">=</span> <span class="s">"example.json"</span><span class="o">,</span> <span class="n">contentType</span> <span class="o">=</span> <span class="s">"application/json"</span><span class="o">)</span>
@@ -164,7 +168,7 @@
 
 <p>XML from absolute files</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">file</span> <span class="o">=</span> <span class="o">{</span><span class="s">"/scripts/example1.xml"</span><span class="o">,</span> <span class="s">"/scripts/example2.xml"</span><span class="o">})</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">fileResponses</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -177,7 +181,7 @@
 
 <p>Use Moxy as a proxy</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">proxy</span> <span class="o">=</span> <span class="s">"http://www.google.com"</span><span class="o">)</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">proxyToGoogle</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -190,7 +194,7 @@
 
 <p>Capture response when proxying</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">proxy</span> <span class="o">=</span> <span class="s">"http://www.google.com"</span><span class="o">,</span> <span class="n">file</span> <span class="o">=</span> <span class="s">"google_robots.txt"</span><span class="o">)</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">captureResponseFromGoogle</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -205,7 +209,7 @@
 
 <p>Capture responses when proxying</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">proxy</span> <span class="o">=</span> <span class="s">"http://www.google.com"</span><span class="o">,</span> <span class="n">file</span> <span class="o">=</span> <span class="o">{</span><span class="s">"google_robots.txt"</span><span class="o">,</span> <span class="s">"google_humans.txt"</span><span class="o">})</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">captureResponsesFromGoogle</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -223,7 +227,7 @@
 
 <p>Multiple content types;</p>
 
-<div class="highlight"><pre>
+<div class="highlight highlight-java"><pre>
     <span class="nd">@Test</span>
     <span class="nd">@Moxy</span><span class="o">(</span><span class="n">contentType</span> <span class="o">=</span> <span class="o">{</span><span class="s">"application/json"</span><span class="o">,</span> <span class="s">"text/xml"</span><span class="o">})</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">multipleContentTypes</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -239,17 +243,12 @@
 
 </pre></div>
       </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Moxy maintained by <a href="https://github.com/tomkp">tomkp</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/tomkp">tomkp</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
-
+    <script src="javascripts/scale.fix.js"></script>
     
-
   </body>
 </html>
