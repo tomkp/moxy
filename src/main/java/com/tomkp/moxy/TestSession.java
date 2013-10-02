@@ -19,14 +19,24 @@ public class TestSession {
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
     private static final int DEFAULT_PORT = 9001;
 
+    private final String path;
 
     private List<Moxy> moxies = new ArrayList<Moxy>();
 
     private int index = 0;
 
 
+    public TestSession(String path) {
+        this.path = path;
+    }
+
     public void increment() {
         index++;
+    }
+
+
+    public String getPath() {
+        return path;
     }
 
 
@@ -266,6 +276,8 @@ public class TestSession {
     }
 
 
-
+    public boolean shouldSaveResponse() {
+        return (hasProxy() && (getFileCount() > 0 || getIndexed()));
+    }
 
 }

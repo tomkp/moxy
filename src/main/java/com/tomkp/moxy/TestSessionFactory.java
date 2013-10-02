@@ -10,7 +10,7 @@ public class TestSessionFactory {
 
     public TestSession createTestSession(Class<?> testClass, Method method) {
 
-        TestSession testSession = new TestSession();
+        TestSession testSession = new TestSession(testClass.getResource(".").getPath());
 
         Moxy moxyMethodAnnotation = method.getAnnotation(Moxy.class);
         if (moxyMethodAnnotation != null) {

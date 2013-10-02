@@ -22,9 +22,7 @@ public class MoxyTestRunner {
 
             int port = testSession.getPort();
 
-            String path = testClass.getResource(".").getPath();
-
-            MoxyRequestHandler handler = new MoxyRequestHandler(path, testSession);
+            MoxyRequestHandler handler = new MoxyRequestHandler(testSession);
 
             moxyHttpServer.start(port, handler);
         }

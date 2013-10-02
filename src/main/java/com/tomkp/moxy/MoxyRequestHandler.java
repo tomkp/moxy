@@ -23,13 +23,10 @@ public class MoxyRequestHandler {
 
 
     private final TestSession testSession;
-    private final String path;
 
 
+    public MoxyRequestHandler(TestSession testSession) {
 
-    public MoxyRequestHandler(String path,
-                              TestSession testSession) {
-        this.path = path;
         this.testSession = testSession;
 
         Requests.reset();
@@ -44,21 +41,35 @@ public class MoxyRequestHandler {
 
             configureHttpHeaders(httpServletResponse);
 
+            InputStream inputStream = null;
+
             if (testSession.hasProxy()) {
 
-                proxyRequest(httpServletRequest, httpServletResponse);
+                //proxyRequest(httpServletRequest, httpServletResponse);
+                String proxy = testSession.getProxy();
+
+                // generate the correct url to proxy to
+                URL url = createProxyUrl(httpServletRequest, proxy);
+
+                // perform http GET / POST / PUT / DELETE
+                InputSupplier<? extends InputStream> inputSupplier;
+                String method = httpServletRequest.getMethod();
+
+                if (method.equalsIgnoreCase("GET")) {
+                    inputStream = Resources.newInputStreamSupplier(url).getInput();
+                } else {
+                    byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
+                    byte[] responseBytes = write(url, requestBytes, method);
+                    inputStream = ByteStreams.newInputStreamSupplier(responseBytes).getInput();
+                }
+
 
             } else if (testSession.hasResponses()) {
 
                 String response = testSession.getResponse();
 
-                InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
+                inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
 
-                Map<String, String> template = testSession.getReplacements();
-
-                InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
-
-                ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
             } else if (testSession.hasFiles()) {
 
@@ -66,36 +77,43 @@ public class MoxyRequestHandler {
                 String filename = testSession.getFilename();
                 if (filename.startsWith("/")) {
 
-                    InputStream inputStream = this.getClass().getResourceAsStream(filename);
-
-                    Map<String, String> template = testSession.getReplacements();
-
-                    InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
-
-                    ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
+                    inputStream = this.getClass().getResourceAsStream(filename);
 
                 } else {
 
-                    File file = new File(path, filename);
-                    InputSupplier<? extends InputStream> inputSupplier = Files.newInputStreamSupplier(file);
-
-                    Map<String, String> template = testSession.getReplacements();
-
-                    inputSupplier = replace(template, inputSupplier.getInput());
-
-                    ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
+                    File file = new File(testSession.getPath(), filename);
+                    inputStream = Files.newInputStreamSupplier(file).getInput();
 
                 }
+
             }
+
+
+            if (inputStream != null) {
+
+                Map<String, String> template = testSession.getReplacements();
+                InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
+                ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
+
+                if (testSession.shouldSaveResponse()) {
+                    String filename = testSession.getFilename();
+
+                    File file = new File(testSession.getPath(), filename);
+                    if (!file.exists()) {
+                        Files.createParentDirs(file);
+                        boolean created = file.createNewFile();
+                        LOG.info("file '{}' created '{}'", file, created);
+                    }
+                    ByteStreams.copy(inputSupplier, new FileOutputStream(file));
+                }
+            }
+
             testSession.increment();
 
         } catch (Exception e) {
             throw new MoxyException("error processing request", e);
         }
     }
-
-
-
 
 
     private void configureHttpHeaders(HttpServletResponse httpServletResponse) {
@@ -112,50 +130,6 @@ public class MoxyRequestHandler {
 
 
 
-    private void proxyRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
-        String proxy = testSession.getProxy();
-        boolean indexed = testSession.getIndexed();
-        int fileCount = testSession.getFileCount();
-
-        // generate the correct url to proxy to
-        URL url = createProxyUrl(httpServletRequest, proxy);
-
-        // perform http GET / POST / PUT / DELETE
-        InputSupplier<? extends InputStream> inputSupplier;
-        String method = httpServletRequest.getMethod();
-
-        if (method.equalsIgnoreCase("GET")) {
-            inputSupplier = Resources.newInputStreamSupplier(url);
-        } else {
-            byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
-            byte[] responseBytes = write(url, requestBytes, method);
-            inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
-        }
-
-        Map<String, String> template = testSession.getReplacements();
-
-        inputSupplier = replace(template, inputSupplier.getInput());
-
-        ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
-
-
-        // record the response to a file
-        if (fileCount > 0 || indexed)  {
-            String filename = testSession.getFilename();
-
-            File file = new File(path, filename);
-            if (!file.exists()) {
-                Files.createParentDirs(file);
-                boolean created = file.createNewFile();
-                LOG.info("file '{}' created '{}'", file, created);
-            }
-            ByteStreams.copy(inputSupplier, new FileOutputStream(file));
-        }
-    }
-
-
-
-
     private byte[] write(URL url, byte[] body, String method) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setDoOutput(true);
@@ -164,7 +138,6 @@ public class MoxyRequestHandler {
         ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
         return ByteStreams.toByteArray(httpURLConnection.getInputStream());
     }
-
 
 
     private InputSupplier<? extends InputStream> replace(Map<String, String> template, InputStream inputStream) throws IOException {

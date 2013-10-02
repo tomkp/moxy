@@ -19,8 +19,8 @@ public class MoxyRequestHandlerTest {
     @Test
     public void x() {
 
-        TestSession testSession = new TestSession();
-        MoxyRequestHandler handler = new MoxyRequestHandler("/", testSession);
+        TestSession testSession = new TestSession("/");
+        MoxyRequestHandler handler = new MoxyRequestHandler(testSession);
         handler.process(request, response);
     }
 
