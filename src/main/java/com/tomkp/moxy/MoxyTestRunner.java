@@ -1,7 +1,5 @@
 package com.tomkp.moxy;
 
-import com.tomkp.moxy.writers.HttpResponseWriter;
-
 import java.lang.reflect.Method;
 
 public class MoxyTestRunner {
@@ -26,16 +24,7 @@ public class MoxyTestRunner {
 
             String path = testClass.getResource(".").getPath();
 
-            HttpResponseWriter httpResponseWriter = new HttpResponseWriter();
-
-            //ResponseWriter responseWriter = new ResponseWriter(httpResponseWriter);
-            //RequestProxy proxyRequest = new RequestProxy(httpResponseWriter);
-
-            MoxyRequestHandler handler = new MoxyRequestHandler(
-                    //proxyRequest,
-                    httpResponseWriter,
-                    path,
-                    moxyData);
+            MoxyRequestHandler handler = new MoxyRequestHandler(path, moxyData);
 
             moxyHttpServer.start(port, handler);
         }

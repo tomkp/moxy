@@ -2,7 +2,6 @@ package com.tomkp.moxy;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.*;
-import com.tomkp.moxy.writers.HttpResponseWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,21 +21,14 @@ public class MoxyRequestHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
 
-    //private final RequestProxy proxyRequest;
-    //private final ResponseWriter responseWriter;
-    private HttpResponseWriter responseWriter;
 
     private final MoxyData moxyData;
     private final String path;
-    private int index = 0;
 
 
-    public MoxyRequestHandler(//RequestProxy proxyRequest,
-                              HttpResponseWriter responseWriter,
-                              String path,
+
+    public MoxyRequestHandler(String path,
                               MoxyData moxyData) {
-        //this.proxyRequest = proxyRequest;
-        this.responseWriter = responseWriter;
         this.path = path;
         this.moxyData = moxyData;
 
@@ -54,17 +46,11 @@ public class MoxyRequestHandler {
 
             if (moxyData.hasProxy()) {
 
-//                InputStream inputStream = null;
-//                writeProxyRequest(inputStream, httpServletResponse);
-
                 proxyRequest(httpServletRequest, httpServletResponse);
 
-            } else if (moxyData.hasResponses(index)) {
+            } else if (moxyData.hasResponses()) {
 
-                //writeResponseUsingAnnotationValue(httpServletResponse);
-
-                String response = moxyData.getResponse(index);
-                //responseWriter.writeStringToResponse(httpServletResponse, response);
+                String response = moxyData.getResponse();
 
                 InputStream inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
 
@@ -74,24 +60,13 @@ public class MoxyRequestHandler {
 
                 ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
-
-                //responseWriter.writeResponse(httpServletResponse, inputStream);
-
-            } else if (moxyData.hasFiles(index)) {
-
-                //writeResponseUsingFileContents(httpServletResponse);
-
+            } else if (moxyData.hasFiles()) {
 
                 // write response using file contents
-                String filename = moxyData.getFilename(index);
+                String filename = moxyData.getFilename();
                 if (filename.startsWith("/")) {
-                    //responseWriter.writeAbsoluteFileToResponse(httpServletResponse, filename);
 
                     InputStream inputStream = this.getClass().getResourceAsStream(filename);
-
-                    //responseWriter.writeResponse(httpServletResponse, inputStream);
-
-                    //InputSupplier<InputStream> inputSupplier = Resources.newInputStreamSupplier(Resources.getResource(filename));
 
                     Map<String, String> template = moxyData.getTemplate();
 
@@ -100,12 +75,9 @@ public class MoxyRequestHandler {
                     ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
                 } else {
-                    //responseWriter.writeRelativeFileToResponse(httpServletResponse, path, filename);
 
                     File file = new File(path, filename);
                     InputSupplier<? extends InputStream> inputSupplier = Files.newInputStreamSupplier(file);
-                    //InputStream inputStream = inputSupplier.getInput();
-                    //responseWriter.writeResponse(httpServletResponse, inputStream);
 
                     Map<String, String> template = moxyData.getTemplate();
 
@@ -113,10 +85,9 @@ public class MoxyRequestHandler {
 
                     ByteStreams.copy(inputSupplier.getInput(), httpServletResponse.getOutputStream());
 
-                    //ByteStreams.copy(inputStream, httpServletResponse.getOutputStream());
                 }
             }
-            index++;
+            moxyData.increment();
 
         } catch (Exception e) {
             throw new MoxyException("error processing request", e);
@@ -128,9 +99,9 @@ public class MoxyRequestHandler {
 
 
     private void configureHttpHeaders(HttpServletResponse httpServletResponse) {
-        int statusCode = moxyData.getStatusCode(index);
-        List<Cookie> httpCookies = moxyData.getCookies(index);
-        String contentType = moxyData.getContentType(index);
+        int statusCode = moxyData.getStatusCode();
+        List<Cookie> httpCookies = moxyData.getCookies();
+        String contentType = moxyData.getContentType();
 
         httpServletResponse.setStatus(statusCode);
         for (Cookie httpCookie : httpCookies) {
@@ -146,7 +117,6 @@ public class MoxyRequestHandler {
         boolean indexed = moxyData.getIndexed();
         int fileCount = moxyData.getFileCount();
 
-
         // generate the correct url to proxy to
         URL url = createProxyUrl(httpServletRequest, proxy);
 
@@ -156,33 +126,22 @@ public class MoxyRequestHandler {
 
         if (method.equalsIgnoreCase("GET")) {
             inputSupplier = Resources.newInputStreamSupplier(url);
-
-
         } else {
             byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
             byte[] responseBytes = write(url, requestBytes, method);
             inputSupplier = ByteStreams.newInputStreamSupplier(responseBytes);
-            //ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
-            //responseWriter.writeResponse(httpServletResponse, Resources.newInputStreamSupplier(url).getInput());
         }
-
 
         Map<String, String> template = moxyData.getTemplate();
 
         inputSupplier = replace(template, inputSupplier.getInput());
 
-        //InputStream inputStream = inputSupplier.getInput();
-
-        //responseWriter.writeResponse(httpServletResponse, inputSupplier.getInput());
-
         ByteStreams.copy(inputSupplier, httpServletResponse.getOutputStream());
-
 
 
         // record the response to a file
         if (fileCount > 0 || indexed)  {
-            String filename = moxyData.getFilename(index);
-            //responseWriter.writeResponseToFile(path, filename, inputStream);
+            String filename = moxyData.getFilename();
 
             File file = new File(path, filename);
             if (!file.exists()) {
@@ -217,7 +176,6 @@ public class MoxyRequestHandler {
             str = str.replaceAll(from, to);
         }
         return ByteStreams.newInputStreamSupplier(str.getBytes("UTF-8"));
-        //return inputSupplier;
     }
 
 

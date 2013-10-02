@@ -1,7 +1,6 @@
 package com.tomkp.moxy;
 
 
-import com.tomkp.moxy.writers.HttpResponseWriter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -14,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 public class MoxyRequestHandlerTest {
 
 
-    //@Mock private RequestProxy requestProxy;
-    @Mock private HttpResponseWriter writer;
     @Mock private HttpServletRequest request;
     @Mock private HttpServletResponse response;
 
@@ -23,8 +20,7 @@ public class MoxyRequestHandlerTest {
     public void x() {
 
         MoxyData moxyData = new MoxyData();
-        //MoxyRequestHandler handler = new MoxyRequestHandler(requestProxy, writer, "/", moxyData);
-        MoxyRequestHandler handler = new MoxyRequestHandler(writer, "/", moxyData);
+        MoxyRequestHandler handler = new MoxyRequestHandler("/", moxyData);
         handler.process(request, response);
     }
 

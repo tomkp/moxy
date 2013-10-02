@@ -22,7 +22,12 @@ public class MoxyData {
 
     private List<Moxy> moxies = new ArrayList<Moxy>();
 
+    private int index = 0;
 
+
+    public void increment() {
+        index++;
+    }
 
 
     public void add(Moxy moxy) {
@@ -36,11 +41,11 @@ public class MoxyData {
     }
 
 
-    public boolean hasFiles(int index) {
+    public boolean hasFiles() {
         return getFileCount() > index || getIndexed();
     }
 
-    public boolean hasResponses(int index) {
+    public boolean hasResponses() {
         return getResponseCount() > index;
     }
 
@@ -63,13 +68,13 @@ public class MoxyData {
     }
 
 
-    public String getResponse(int index) {
+    public String getResponse() {
         String[] responses = getResponses();
         return responses[index];
     }
 
 
-    public String getFilename(int index) {
+    public String getFilename() {
         String[] files = getFiles();
         boolean indexed = getIndexed();
         String filename;
@@ -90,8 +95,8 @@ public class MoxyData {
     }
 
 
-    public List<Cookie> getCookies(int index) {
-        String[] cookies = getCookies();
+    public List<Cookie> getCookies() {
+        String[] cookies = getCookiesArray();
         List<Cookie> httpCookies = new ArrayList<Cookie>();
         if (cookies.length > 1) {
             String cookie = cookies[index];
@@ -106,7 +111,7 @@ public class MoxyData {
     }
 
 
-    public String getContentType(int index) {
+    public String getContentType() {
         String[] contentTypes = getContentTypes();
         String contentType;
         if (contentTypes.length > 1) {
@@ -121,7 +126,7 @@ public class MoxyData {
     }
 
 
-    public int getStatusCode(int index) {
+    public int getStatusCode() {
         int[] statusCodes = getStatusCodes();
         int statusCode = DEFAULT_STATUS;
         if (statusCodes.length > 1) {
@@ -225,7 +230,7 @@ public class MoxyData {
     }
 
 
-    private String[] getCookies() {
+    private String[] getCookiesArray() {
         String[] cookies = {};
         for (Moxy moxy : moxies) {
             cookies = moxy.cookie();
