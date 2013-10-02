@@ -150,12 +150,12 @@ public class MoxyRequestHandler {
     }
 
 
-    private InputSupplier<? extends InputStream> replace(Map<String, String> template, InputStream inputStream) throws IOException {
-        LOG.info("replace: '{}'", template);
+    private InputSupplier<? extends InputStream> replace(Map<String, String> replacementMap, InputStream inputStream) throws IOException {
+        LOG.info("replace: '{}'", replacementMap);
         String str = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
-        for (String from : template.keySet()) {
-            String to = template.get(from);
-            System.out.println("replace '" + from + "' with '" + to + "'");
+        for (String from : replacementMap.keySet()) {
+            String to = replacementMap.get(from);
+            LOG.info("replace '" + from + "' with '" + to + "'");
             str = str.replaceAll(from, to);
         }
         return ByteStreams.newInputStreamSupplier(str.getBytes("UTF-8"));

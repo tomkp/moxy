@@ -18,7 +18,7 @@ public class TestSessionFactory {
         }
         addParentMoxies(testSession, testClass);
 
-        validateMoxyData(testSession);
+        testSession.validate();
 
         return testSession;
     }
@@ -37,14 +37,6 @@ public class TestSessionFactory {
 
 
 
-    private void validateMoxyData(TestSession testSession) {
-        int fileCount = testSession.getFileCount();
-        int responseCount = testSession.getResponseCount();
-
-        if (responseCount > 0 && fileCount > 0) {
-            throw new MoxyException("You must annotate your test with either 'responses' or 'files', but not both");
-        }
-    }
 
 
 }

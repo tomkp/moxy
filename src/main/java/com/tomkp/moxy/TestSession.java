@@ -45,7 +45,6 @@ public class TestSession {
     }
 
 
-
     public boolean isEmpty() {
         return moxies.isEmpty();
     }
@@ -99,10 +98,6 @@ public class TestSession {
     }
 
 
-    public int getFileCount() {
-        String[] files = getFiles();
-        return files.length;
-    }
 
 
     public List<Cookie> getCookies() {
@@ -166,17 +161,6 @@ public class TestSession {
     }
 
 
-    public boolean getIndexed() {
-        boolean indexed = false;
-        for (Moxy moxy : moxies) {
-            indexed = moxy.indexed();
-            if (indexed) {
-                break;
-            }
-        }
-        return indexed;
-    }
-
 
     public Map<String, String> getReplacements() {
         Map<String, String> map = new HashMap<String, String>();
@@ -186,7 +170,7 @@ public class TestSession {
                 if (replacementList.length % 2 != 0) {
                     throw new RuntimeException("replace must consist of pairs of values, something to replace 'from' and 'to'");
                 }
-                for (int i = 0; i < replacementList.length; i+=2) {
+                for (int i = 0; i < replacementList.length; i += 2) {
                     String replaceThis = replacementList[i];
                     String withThat = replacementList[i + 1];
                     map.put(replaceThis, withThat);
@@ -198,7 +182,39 @@ public class TestSession {
         return map;
     }
 
+
+    public boolean shouldSaveResponse() {
+        return (hasProxy() && (getFileCount() > 0 || getIndexed()));
+    }
+
+    public void validate() {
+        int fileCount = getFileCount();
+        int responseCount = getResponseCount();
+
+        if (responseCount > 0 && fileCount > 0) {
+            throw new MoxyException("You must annotate your test with either 'responses' or 'files', but not both");
+        }
+    }
+
     //.....
+
+
+    private int getFileCount() {
+        String[] files = getFiles();
+        return files.length;
+    }
+
+
+    private boolean getIndexed() {
+        boolean indexed = false;
+        for (Moxy moxy : moxies) {
+            indexed = moxy.indexed();
+            if (indexed) {
+                break;
+            }
+        }
+        return indexed;
+    }
 
 
     private int[] getStatusCodes() {
@@ -275,9 +291,5 @@ public class TestSession {
         return responses;
     }
 
-
-    public boolean shouldSaveResponse() {
-        return (hasProxy() && (getFileCount() > 0 || getIndexed()));
-    }
 
 }
