@@ -24,6 +24,7 @@ public class TestSession {
     private List<Moxy> moxies = new ArrayList<Moxy>();
 
     private int index = 0;
+    private Map<String,String> replacementsMap;
 
 
     public TestSession(String path) {
@@ -163,24 +164,9 @@ public class TestSession {
 
 
     public Map<String, String> getReplacements() {
-        Map<String, String> map = new HashMap<String, String>();
-        for (Moxy moxy : moxies) {
-            String[] replacementList = moxy.replace();
-            if (replacementList.length > 0) {
-                if (replacementList.length % 2 != 0) {
-                    throw new RuntimeException("replace must consist of pairs of values, something to replace 'from' and 'to'");
-                }
-                for (int i = 0; i < replacementList.length; i += 2) {
-                    String replaceThis = replacementList[i];
-                    String withThat = replacementList[i + 1];
-                    map.put(replaceThis, withThat);
-                }
-                break;
-            }
-
-        }
-        return map;
+        return replacementsMap;
     }
+
 
 
     public boolean shouldSaveResponse() {
@@ -194,9 +180,33 @@ public class TestSession {
         if (responseCount > 0 && fileCount > 0) {
             throw new MoxyException("You must annotate your test with either 'responses' or 'files', but not both");
         }
+
+        buildReplacementsMap();
+
     }
 
     //.....
+
+
+    private Map<String, String> buildReplacementsMap() {
+        replacementsMap = new HashMap<String, String>();
+        for (Moxy moxy : moxies) {
+            String[] replacementList = moxy.replace();
+            if (replacementList.length > 0) {
+                if (replacementList.length % 2 != 0) {
+                    throw new MoxyException("replace must consist of pairs of values, something to replace 'from' and 'to'");
+                }
+                for (int i = 0; i < replacementList.length; i += 2) {
+                    String replaceThis = replacementList[i];
+                    String withThat = replacementList[i + 1];
+                    replacementsMap.put(replaceThis, withThat);
+                }
+                break;
+            }
+        }
+        return replacementsMap;
+    }
+
 
 
     private int getFileCount() {

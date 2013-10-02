@@ -62,4 +62,11 @@ public class ReplaceStringTest {
         assertEquals(humansResponse, Files.toString(humansFile, Charset.forName("UTF-8")));
     }
 
+
+
+//    @Test(expected = MoxyException.class)
+//    @Moxy(replace = {"one", "two", "three"})
+//    public void replacementsComeInPairs() throws Exception {
+//
+//    }
 }
