@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tomkp</groupId>
     <artifactId>moxy</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
 
     <description>Simple mocking / proxy http server annotations for integration tests</description>
