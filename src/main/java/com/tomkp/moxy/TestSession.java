@@ -51,11 +51,8 @@ public class TestSession {
     }
 
 
-    public boolean hasFiles() {
-        return getFileCount() > index || getIndexed();
-    }
 
-    public boolean hasResponses() {
+    public boolean useStaticResponse() {
         return getResponseCount() > index;
     }
 
@@ -144,7 +141,7 @@ public class TestSession {
     }
 
 
-    public boolean hasProxy() {
+    public boolean useProxiedResponse() {
         String proxy = getProxy();
         return !proxy.isEmpty();
     }
@@ -170,8 +167,9 @@ public class TestSession {
 
 
     public boolean shouldSaveResponse() {
-        return (hasProxy() && (getFileCount() > 0 || getIndexed()));
+        return (useProxiedResponse() && (getFileCount() > 0 || getIndexed()));
     }
+
 
     public void validate() {
         int fileCount = getFileCount();
@@ -183,6 +181,16 @@ public class TestSession {
 
         buildReplacementsMap();
 
+    }
+
+
+
+    public boolean useRelativeFile() {
+        return hasFiles() && getFilename().startsWith("/");
+    }
+
+    public boolean useAbsoluteFile() {
+        return hasFiles();
     }
 
     //.....
@@ -301,5 +309,9 @@ public class TestSession {
         return responses;
     }
 
+
+    private boolean hasFiles() {
+        return getFileCount() > index || getIndexed();
+    }
 
 }

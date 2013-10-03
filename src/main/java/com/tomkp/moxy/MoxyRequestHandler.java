@@ -41,57 +41,33 @@ public class MoxyRequestHandler {
 
             InputStream inputStream = null;
 
-            if (testSession.hasProxy()) {
+            if (testSession.useProxiedResponse()) {
 
                 // PROXY REQUESTS
 
-                String proxy = testSession.getProxy();
-
-                // generate the correct url to proxy to
-                URL url = createProxyUrl(httpServletRequest, proxy);
-
-                // perform http GET / POST / PUT / DELETE
-                String method = httpServletRequest.getMethod();
-
-                if (method.equalsIgnoreCase("GET")) {
-                    // HTTP GET
-                    inputStream = Resources.newInputStreamSupplier(url).getInput();
-                } else {
-                    // HTTP POST / DELETE / PUT
-                    byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
-                    byte[] responseBytes = write(url, requestBytes, method);
-                    inputStream = ByteStreams.newInputStreamSupplier(responseBytes).getInput();
-                }
+                inputStream = returnProxiedResponse(httpServletRequest);
 
 
-            } else if (testSession.hasResponses()) {
+            } else if (testSession.useStaticResponse()) {
 
                 // RETURN STATIC RESPONSES
 
-                String response = testSession.getResponse();
-
-                inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
+                inputStream = returnStaticResponse();
 
 
-            } else if (testSession.hasFiles()) {
+            } else if (testSession.useRelativeFile()) {
 
                 // RETURN RESPONSES FROM FILES
 
-                String filename = testSession.getFilename();
-                if (filename.startsWith("/")) {
+                inputStream = returnRelativeFileResponse();
 
-                    // RELATIVE FILES
-                    inputStream = this.getClass().getResourceAsStream(filename);
+            } else if (testSession.useAbsoluteFile()) {
 
-                } else {
+                // RETURN RESPONSES FROM FILES
 
-                    // ABSOLUTE FILES
-
-                    File file = new File(testSession.getPath(), filename);
-                    inputStream = Files.newInputStreamSupplier(file).getInput();
-
-                }
+                inputStream = returnAbsoluteFileResponse();
             }
+
 
             if (inputStream != null) {
 
@@ -126,6 +102,59 @@ public class MoxyRequestHandler {
     }
 
 
+    private InputStream returnRelativeFileResponse() throws IOException {
+        InputStream inputStream;
+        String filename = testSession.getFilename();
+
+        // RELATIVE FILES
+        inputStream = this.getClass().getResourceAsStream(filename);
+
+        return inputStream;
+    }
+
+
+    private InputStream returnAbsoluteFileResponse() throws IOException {
+        InputStream inputStream;
+        // ABSOLUTE FILES
+        String filename = testSession.getFilename();
+        File file = new File(testSession.getPath(), filename);
+        inputStream = Files.newInputStreamSupplier(file).getInput();
+
+        return inputStream;
+    }
+
+
+    private InputStream returnStaticResponse() {
+        InputStream inputStream;
+        String response = testSession.getResponse();
+
+        inputStream = new ByteArrayInputStream(response.getBytes(Charset.forName("UTF-8")));
+        return inputStream;
+    }
+
+    private InputStream returnProxiedResponse(HttpServletRequest httpServletRequest) throws IOException {
+        InputStream inputStream;
+        String proxy = testSession.getProxy();
+
+        // generate the correct url to proxy to
+        URL url = createProxyUrl(httpServletRequest, proxy);
+
+        // perform http GET / POST / PUT / DELETE
+        String method = httpServletRequest.getMethod();
+
+        if (method.equalsIgnoreCase("GET")) {
+            // HTTP GET
+            inputStream = Resources.newInputStreamSupplier(url).getInput();
+        } else {
+            // HTTP POST / DELETE / PUT
+            byte[] requestBytes = ByteStreams.toByteArray(httpServletRequest.getInputStream());
+            byte[] responseBytes = write(url, requestBytes, method);
+            inputStream = ByteStreams.newInputStreamSupplier(responseBytes).getInput();
+        }
+        return inputStream;
+    }
+
+
     private void configureHttpHeaders(HttpServletResponse httpServletResponse) {
         int statusCode = testSession.getStatusCode();
         List<Cookie> httpCookies = testSession.getCookies();
@@ -137,7 +166,6 @@ public class MoxyRequestHandler {
         }
         httpServletResponse.setContentType(contentType);
     }
-
 
 
     private byte[] write(URL url, byte[] body, String method) throws IOException {
