@@ -97,7 +97,7 @@ public class MoxyRequestHandler {
             testSession.increment();
 
         } catch (Exception e) {
-            throw new MoxyException("error processing request", e);
+            throw new RuntimeException("error processing request", e);
         }
     }
 

@@ -176,7 +176,7 @@ public class TestSession {
         int responseCount = getResponseCount();
 
         if (responseCount > 0 && fileCount > 0) {
-            throw new MoxyException("You must annotate your test with either 'responses' or 'files', but not both");
+            throw new RuntimeException("You must annotate your test with either 'responses' or 'files', but not both");
         }
 
         buildReplacementsMap();
@@ -202,7 +202,7 @@ public class TestSession {
             String[] replacementList = moxy.replace();
             if (replacementList.length > 0) {
                 if (replacementList.length % 2 != 0) {
-                    throw new MoxyException("replace must consist of pairs of values, something to replace 'from' and 'to'");
+                    throw new RuntimeException("replace must consist of pairs of values, something to replace 'from' and 'to'");
                 }
                 for (int i = 0; i < replacementList.length; i += 2) {
                     String replaceThis = replacementList[i];

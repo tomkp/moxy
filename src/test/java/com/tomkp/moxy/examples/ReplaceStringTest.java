@@ -64,9 +64,4 @@ public class ReplaceStringTest {
 
 
 
-//    @Test(expected = MoxyException.class)
-//    @Moxy(replace = {"one", "two", "three"})
-//    public void replacementsComeInPairs() throws Exception {
-//
-//    }
 }

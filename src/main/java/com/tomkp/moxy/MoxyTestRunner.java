@@ -5,16 +5,16 @@ import java.lang.reflect.Method;
 public class MoxyTestRunner {
 
     private MoxyHttpServer moxyHttpServer;
+    private TestSessionFactory testSessionFactory;
 
 
-    public MoxyTestRunner(MoxyHttpServer moxyHttpServer) {
+    public MoxyTestRunner(MoxyHttpServer moxyHttpServer, TestSessionFactory testSessionFactory) {
         this.moxyHttpServer = moxyHttpServer;
+        this.testSessionFactory = testSessionFactory;
     }
 
 
     public void initialise(Class<?> testClass, Method method) {
-
-        TestSessionFactory testSessionFactory = new TestSessionFactory();
 
         TestSession testSession = testSessionFactory.createTestSession(testClass, method);
 
