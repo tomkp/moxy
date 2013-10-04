@@ -1,10 +1,17 @@
 package com.tomkp.moxy;
 
 import com.tomkp.moxy.annotations.Moxy;
+import com.tomkp.moxy.responses.AbsoluteFileResponse;
+import com.tomkp.moxy.responses.ProxiedResponse;
+import com.tomkp.moxy.responses.RelativeFileResponse;
+import com.tomkp.moxy.responses.StaticResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +31,7 @@ public class TestSession {
     private List<Moxy> moxies = new ArrayList<Moxy>();
 
     private int index = 0;
+
     private Map<String,String> replacementsMap;
 
 
@@ -41,15 +49,6 @@ public class TestSession {
     }
 
 
-    public void add(Moxy moxy) {
-        moxies.add(moxy);
-    }
-
-
-    public boolean isEmpty() {
-        return moxies.isEmpty();
-    }
-
 
 
     public boolean useStaticResponse() {
@@ -57,16 +56,6 @@ public class TestSession {
     }
 
 
-    public int getPort() {
-        int port = DEFAULT_PORT;
-        for (Moxy moxy : moxies) {
-            if (moxy.port() != 0) {
-                port = moxy.port();
-                break;
-            }
-        }
-        return port;
-    }
 
 
     public int getResponseCount() {
@@ -141,22 +130,13 @@ public class TestSession {
     }
 
 
-    public boolean useProxiedResponse() {
+    private boolean useProxiedResponse() {
         String proxy = getProxy();
         return !proxy.isEmpty();
     }
 
 
-    public String getProxy() {
-        String proxy = "";
-        for (Moxy moxy : moxies) {
-            proxy = moxy.proxy();
-            if (proxy.isEmpty()) {
-                break;
-            }
-        }
-        return proxy;
-    }
+
 
 
 
@@ -185,16 +165,51 @@ public class TestSession {
 
 
 
-    public boolean useRelativeFile() {
+    private boolean useRelativeFile() {
         return hasFiles() && getFilename().startsWith("/");
     }
 
-    public boolean useAbsoluteFile() {
+    private boolean useAbsoluteFile() {
         return hasFiles();
     }
 
-    //.....
+    //.......................................................................................................................................
 
+
+
+    public void add(Moxy moxy) {
+        moxies.add(moxy);
+    }
+
+
+    public boolean isEmpty() {
+        return moxies.isEmpty();
+    }
+
+
+
+    public int getPort() {
+        int port = DEFAULT_PORT;
+        for (Moxy moxy : moxies) {
+            if (moxy.port() != 0) {
+                port = moxy.port();
+                break;
+            }
+        }
+        return port;
+    }
+
+
+    public String getProxy() {
+        String proxy = "";
+        for (Moxy moxy : moxies) {
+            proxy = moxy.proxy();
+            if (proxy.isEmpty()) {
+                break;
+            }
+        }
+        return proxy;
+    }
 
     private Map<String, String> buildReplacementsMap() {
         replacementsMap = new HashMap<String, String>();
@@ -216,11 +231,6 @@ public class TestSession {
     }
 
 
-
-    private int getFileCount() {
-        String[] files = getFiles();
-        return files.length;
-    }
 
 
     private boolean getIndexed() {
@@ -245,22 +255,6 @@ public class TestSession {
         }
         return statusCodes;
     }
-
-
-    private List<Cookie> createCookies(String cookieString) {
-        List<HttpCookie> httpCookies = HttpCookie.parse(cookieString);
-        List<Cookie> cookies = new ArrayList<Cookie>();
-        for (HttpCookie httpCookie : httpCookies) {
-            Cookie cookie = new Cookie(httpCookie.getName(), httpCookie.getValue());
-            cookie.setPath(httpCookie.getPath());
-            cookie.setMaxAge((int) httpCookie.getMaxAge());
-            cookie.setSecure(httpCookie.getSecure());
-            LOG.info("cookie: '{}'", cookie);
-            cookies.add(cookie);
-        }
-        return cookies;
-    }
-
 
     private String[] getContentTypes() {
         String[] contentTypes = {};
@@ -310,8 +304,67 @@ public class TestSession {
     }
 
 
+    //.......................................................................................................................................
+
+
+    private int getFileCount() {
+        String[] files = getFiles();
+        return files.length;
+    }
+
+
+
+
+    private List<Cookie> createCookies(String cookieString) {
+        List<HttpCookie> httpCookies = HttpCookie.parse(cookieString);
+        List<Cookie> cookies = new ArrayList<Cookie>();
+        for (HttpCookie httpCookie : httpCookies) {
+            Cookie cookie = new Cookie(httpCookie.getName(), httpCookie.getValue());
+            cookie.setPath(httpCookie.getPath());
+            cookie.setMaxAge((int) httpCookie.getMaxAge());
+            cookie.setSecure(httpCookie.getSecure());
+            LOG.info("cookie: '{}'", cookie);
+            cookies.add(cookie);
+        }
+        return cookies;
+    }
+
+
+
     private boolean hasFiles() {
         return getFileCount() > index || getIndexed();
     }
 
+
+    public InputStream generateResponse(HttpServletRequest httpServletRequest) throws IOException {
+
+        InputStream inputStream = null;
+
+        if (useProxiedResponse()) {
+
+            // PROXY REQUESTS
+
+            inputStream = new ProxiedResponse().getResponse(this, httpServletRequest);
+
+        } else if (useStaticResponse()) {
+
+            // RETURN STATIC RESPONSES
+
+            inputStream = new StaticResponse().getResponse(this, httpServletRequest);
+
+        } else if (useRelativeFile()) {
+
+            // RETURN RESPONSES FROM FILES
+
+            inputStream = new RelativeFileResponse().getResponse(this, httpServletRequest);
+
+        } else if (useAbsoluteFile()) {
+
+            // RETURN RESPONSES FROM FILES
+
+            inputStream = new AbsoluteFileResponse().getResponse(this, httpServletRequest);
+        }
+
+        return inputStream;
+    }
 }

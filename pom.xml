@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tomkp</groupId>
     <artifactId>moxy</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>Simple mocking / proxy http server annotations for integration tests</description>
@@ -142,65 +142,6 @@
                 </executions>
             </plugin>
 
-            <!--<plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>-->
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.4</version>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.github.github</groupId>
-                <artifactId>site-maven-plugin</artifactId>
-                <version>0.7</version>
-                <configuration>
-                    <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
-                    <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
-                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory> <!-- matches distribution management repository url above -->
-                    <branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
-                    <includes><include>**/*</include></includes>
-                    <repositoryName>moxy</repositoryName>      <!-- github repo name -->
-                    <repositoryOwner>tomkp</repositoryOwner>    <!-- github username  -->
-                </configuration>
-                <executions>
-                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
-                    <execution>
-                        <goals>
-                            <goal>site</goal>
-                        </goals>
-                        <phase>deploy</phase>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.eclipse.mylyn.github</groupId>
-                        <artifactId>org.eclipse.egit.github.core</artifactId>
-                        <version>2.0.3</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
         </plugins>
     </build>
 
