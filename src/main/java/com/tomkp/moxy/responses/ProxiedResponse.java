@@ -20,6 +20,7 @@ public class ProxiedResponse  implements Response {
     private static final Logger LOG = LoggerFactory.getLogger(ProxiedResponse.class);
 
 
+    @Override
     public InputStream getResponse(TestSession testSession, HttpServletRequest request) throws IOException {
         InputStream inputStream;
         String proxy = testSession.getProxy();
@@ -42,6 +43,7 @@ public class ProxiedResponse  implements Response {
         return inputStream;
     }
 
+
     public byte[] write(URL url, byte[] body, String method) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setDoOutput(true);
@@ -50,6 +52,7 @@ public class ProxiedResponse  implements Response {
         ByteStreams.copy(inputSupplier, httpURLConnection.getOutputStream());
         return ByteStreams.toByteArray(httpURLConnection.getInputStream());
     }
+
 
     public URL createProxyUrl(HttpServletRequest httpServletRequest, String proxy) throws MalformedURLException {
         String pathInfo = httpServletRequest.getPathInfo();
