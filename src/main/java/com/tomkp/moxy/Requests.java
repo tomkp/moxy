@@ -18,16 +18,13 @@ public final class Requests {
     private static List<String> pathInfos;
 
 
-    private Requests() {
-    }
-
 
     public static void reset() {
-        parameters = new ArrayList<Map<String, String[]>>();
-        headers = new ArrayList<Map<String, String>>();
-        queryStrings = new ArrayList<String>();
-        requestUris = new ArrayList<String>();
-        pathInfos = new ArrayList<String>();
+        parameters = new ArrayList<>();
+        headers = new ArrayList<>();
+        queryStrings = new ArrayList<>();
+        requestUris = new ArrayList<>();
+        pathInfos = new ArrayList<>();
     }
 
 
@@ -56,6 +53,7 @@ public final class Requests {
     }
 
 
+    @SuppressWarnings("unchecked")
     public static void capture(HttpServletRequest httpServletRequest) {
         recordParameters(httpServletRequest.getParameterMap());
         recordHeaders(httpServletRequest);

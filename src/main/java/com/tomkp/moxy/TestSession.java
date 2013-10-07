@@ -28,15 +28,16 @@ public class TestSession {
 
     private final String path;
 
-    private List<Moxy> moxies = new ArrayList<Moxy>();
+    private Moxy moxy;
 
     private int index = 0;
 
-    private Map<String,String> replacementsMap;
+    private Map<String, String> replacementsMap;
 
 
-    public TestSession(String path) {
+    public TestSession(String path, Moxy moxy) {
         this.path = path;
+        this.moxy = moxy;
     }
 
     public void increment() {
@@ -49,13 +50,9 @@ public class TestSession {
     }
 
 
-
-
     public boolean useStaticResponse() {
         return getResponseCount() > index;
     }
-
-
 
 
     public int getResponseCount() {
@@ -83,8 +80,6 @@ public class TestSession {
         LOG.info("filename: '{}'", filename);
         return filename;
     }
-
-
 
 
     public List<Cookie> getCookies() {
@@ -136,14 +131,9 @@ public class TestSession {
     }
 
 
-
-
-
-
     public Map<String, String> getReplacements() {
         return replacementsMap;
     }
-
 
 
     public boolean shouldSaveResponse() {
@@ -164,7 +154,6 @@ public class TestSession {
     }
 
 
-
     private boolean useRelativeFile() {
         return hasFiles() && getFilename().startsWith("/");
     }
@@ -176,131 +165,62 @@ public class TestSession {
     //.......................................................................................................................................
 
 
-
-    public void add(Moxy moxy) {
-        moxies.add(moxy);
-    }
-
-
-    public boolean isEmpty() {
-        return moxies.isEmpty();
-    }
-
-
-
     public int getPort() {
         int port = DEFAULT_PORT;
-        for (Moxy moxy : moxies) {
-            if (moxy.port() != 0) {
-                port = moxy.port();
-                break;
-            }
+        if (moxy.port() != 0) {
+            port = moxy.port();
         }
         return port;
     }
 
 
     public String getProxy() {
-        String proxy = "";
-        for (Moxy moxy : moxies) {
-            proxy = moxy.proxy();
-            if (proxy.isEmpty()) {
-                break;
-            }
-        }
-        return proxy;
+        return moxy.proxy();
     }
 
     private Map<String, String> buildReplacementsMap() {
         replacementsMap = new HashMap<String, String>();
-        for (Moxy moxy : moxies) {
-            String[] replacementList = moxy.replace();
-            if (replacementList.length > 0) {
-                if (replacementList.length % 2 != 0) {
-                    throw new RuntimeException("replace must consist of pairs of values, something to replace 'from' and 'to'");
-                }
-                for (int i = 0; i < replacementList.length; i += 2) {
-                    String replaceThis = replacementList[i];
-                    String withThat = replacementList[i + 1];
-                    replacementsMap.put(replaceThis, withThat);
-                }
-                break;
+        String[] replacementList = moxy.replace();
+        if (replacementList.length > 0) {
+            if (replacementList.length % 2 != 0) {
+                throw new RuntimeException("replace must consist of pairs of values, something to replace 'from' and 'to'");
+            }
+            for (int i = 0; i < replacementList.length; i += 2) {
+                String replaceThis = replacementList[i];
+                String withThat = replacementList[i + 1];
+                replacementsMap.put(replaceThis, withThat);
             }
         }
         return replacementsMap;
     }
 
 
-
-
     private boolean getIndexed() {
-        boolean indexed = false;
-        for (Moxy moxy : moxies) {
-            indexed = moxy.indexed();
-            if (indexed) {
-                break;
-            }
-        }
-        return indexed;
+        return moxy.indexed();
     }
 
 
     private int[] getStatusCodes() {
-        int[] statusCodes = {};
-        for (Moxy moxy : moxies) {
-            statusCodes = moxy.statusCode();
-            if (statusCodes.length > 0) {
-                break;
-            }
-        }
-        return statusCodes;
+        return moxy.statusCode();
     }
 
     private String[] getContentTypes() {
-        String[] contentTypes = {};
-        for (Moxy moxy : moxies) {
-            contentTypes = moxy.contentType();
-            if (contentTypes.length > 0) {
-                break;
-            }
-        }
-        return contentTypes;
+        return moxy.contentType();
     }
 
 
     private String[] getCookiesArray() {
-        String[] cookies = {};
-        for (Moxy moxy : moxies) {
-            cookies = moxy.cookie();
-            if (cookies.length > 0) {
-                break;
-            }
-        }
-        return cookies;
+        return moxy.cookie();
     }
 
 
     private String[] getFiles() {
-        String[] files = {};
-        for (Moxy moxy : moxies) {
-            files = moxy.file();
-            if (files.length > 0) {
-                break;
-            }
-        }
-        return files;
+       return moxy.file();
     }
 
 
     private String[] getResponses() {
-        String[] responses = {};
-        for (Moxy moxy : moxies) {
-            responses = moxy.response();
-            if (responses.length > 0) {
-                break;
-            }
-        }
-        return responses;
+        return moxy.response();
     }
 
 
@@ -311,8 +231,6 @@ public class TestSession {
         String[] files = getFiles();
         return files.length;
     }
-
-
 
 
     private List<Cookie> createCookies(String cookieString) {
@@ -328,7 +246,6 @@ public class TestSession {
         }
         return cookies;
     }
-
 
 
     private boolean hasFiles() {

@@ -1,5 +1,7 @@
 package com.tomkp.moxy;
 
+import com.tomkp.moxy.annotations.Moxy;
+
 import java.lang.reflect.Method;
 
 public class MoxyTestRunner {
@@ -15,16 +17,15 @@ public class MoxyTestRunner {
 
 
     public void initialise(Class<?> testClass, Method method) {
-
-        TestSession testSession = testSessionFactory.createTestSession(testClass, method);
-
-        if (!testSession.isEmpty()) {
-
-            int port = testSession.getPort();
-
-            MoxyRequestHandler handler = new MoxyRequestHandler(testSession);
-
-            moxyHttpServer.start(port, handler);
+        Moxy moxy = method.getAnnotation(Moxy.class);
+        if (moxy != null) {
+            String path = testClass.getResource(".").getPath();
+            TestSession testSession = testSessionFactory.createTestSession(moxy, path);
+            if (testSession != null) {
+                int port = testSession.getPort();
+                MoxyRequestHandler handler = new MoxyRequestHandler(testSession);
+                moxyHttpServer.start(port, handler);
+            }
         }
     }
 
