@@ -86,8 +86,7 @@ public class MoxyRequestHandler {
 
     private InputSupplier<? extends InputStream> applyReplacements(InputStream inputStream) throws IOException {
         Map<String, String> template = testSession.getReplacements();
-        InputSupplier<? extends InputStream> inputSupplier = replace(template, inputStream);
-        return inputSupplier;
+        return replace(template, inputStream);
     }
 
 
