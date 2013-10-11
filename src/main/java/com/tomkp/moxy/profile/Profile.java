@@ -6,6 +6,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.io.Resources;
+import com.tomkp.moxy.filenames.DefaultFilenameGenerator;
 import com.tomkp.moxy.filenames.FilenameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,8 +147,7 @@ public class Profile {
 
 
 
-
-
+    @SuppressWarnings("unchecked")
     public void saveResponses(HttpServletRequest request, InputSupplier inputSupplier) throws Exception {
 
         if (shouldSave()) {
@@ -193,7 +193,8 @@ public class Profile {
 
             inputStream = new ByteArrayInputStream(responses.get(index).getBytes(Charsets.UTF_8));
 
-        } else if (!files.isEmpty()) {
+            // todo - instanceof???
+        } else if (!files.isEmpty() || !(filenameGenerator instanceof DefaultFilenameGenerator)) {
 
             String filename = getFile(request);
 

@@ -34,7 +34,7 @@ public class MoxyTestRunner {
                     .setResponses(moxy.response())
                     .setStatusCodes(moxy.statusCode())
                     .setReplacements(moxy.replace())
-                    .setFilenameGenerator(getFilenameGenerator(moxy.filenameGenerator()));
+                    .setFilenameGenerator(getFilenameGenerator(moxy.filenameGenerator()))
                     ;
 
             int port = moxy.port();

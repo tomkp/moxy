@@ -34,6 +34,7 @@ public class PathAndQueryStringFilename implements FilenameGenerator {
         suffixes.put("text/xml", "xml");
     }
 
+
     @Override
     public String generate(HttpServletRequest request, Profile profile) {
         String pathInfo = request.getPathInfo();
@@ -42,6 +43,11 @@ public class PathAndQueryStringFilename implements FilenameGenerator {
         if (pathInfo != null) {
             filename += pathInfo.substring(1, pathInfo.length());
         }
+
+        if (filename.isEmpty()) {
+            filename = "index";
+        }
+
         if (queryString != null) {
             filename += "?" + queryString;
         }

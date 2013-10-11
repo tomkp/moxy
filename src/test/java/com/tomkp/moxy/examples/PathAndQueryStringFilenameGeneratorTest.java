@@ -21,6 +21,13 @@ public class PathAndQueryStringFilenameGeneratorTest {
 
 
     @Test
+    @Moxy(filenameGenerator = PathAndQueryStringFilename.class)
+    public void replayQuerys() throws Exception {
+        assertEquals("pathAndQuery, hello?x=1&y=2", Resources.toString(new URL("http://localhost:9001/hello?x=1&y=2"), Charset.forName("UTF-8")));
+    }
+
+
+    @Test
     @Moxy(filenameGenerator = PathAndQueryStringFilename.class, file = "hello?x=1&y=2")
     public void replayQuery() throws Exception {
         assertEquals("pathAndQuery, hello?x=1&y=2", Resources.toString(new URL("http://localhost:9001/hello?x=1&y=2"), Charset.forName("UTF-8")));
