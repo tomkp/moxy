@@ -174,8 +174,6 @@ public class Profile {
         InputStream inputStream = null;
 
         if (!proxy.isEmpty()) {
-            // PROXY REQUESTS
-
             // generate the correct url to proxy to
             URL url = createProxyUrl(request, proxy);
 

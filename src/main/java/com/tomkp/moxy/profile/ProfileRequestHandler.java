@@ -34,18 +34,22 @@ public class ProfileRequestHandler implements RequestHandler {
 
             profile.configureHttpHeaders(httpServletResponse);
 
+            // generate the response
             InputStream inputStream = profile.generateResponse(httpServletRequest);
 
             if (inputStream != null) {
 
-                // APPLY REPLACEMENTS
+                // apply any replacements to the response
                 InputSupplier<? extends InputStream> inputSupplier = replacer.replace(profile.getReplacements(), inputStream);
 
-                // WRITE RESPONSE
+                // write response
                 writeResponse(httpServletResponse, inputSupplier);
 
+                // save response
                 profile.saveResponses(httpServletRequest, inputSupplier);
             }
+
+            // increment the counter
             profile.increment();
 
         } catch (Exception e) {
