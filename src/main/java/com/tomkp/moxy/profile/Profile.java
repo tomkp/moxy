@@ -2,7 +2,10 @@ package com.tomkp.moxy.profile;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import com.google.common.io.*;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import com.tomkp.moxy.filenames.FilenameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +101,9 @@ public class Profile {
         return this;
     }
 
+    public Map<String, String> getReplacements() {
+        return replacements;
+    }
 
     public Profile setResponses(String[] responses) {
         this.responses = Arrays.asList(responses);
@@ -140,33 +146,16 @@ public class Profile {
 
 
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("proxy", proxy)
-                .add("contentTypes", contentTypes)
-                .add("statusCodes", statusCodes)
-                .add("cookies", cookies)
-                .add("responses", responses)
-                .add("files", files)
-                .add("indexed", indexed)
-                .add("replacements", replacements)
-                .add("filenameGenerator", filenameGenerator)
-                .add("path", path)
-                .add("index", index)
-                .toString();
-    }
 
 
     public void saveResponses(HttpServletRequest request, InputSupplier inputSupplier) throws Exception {
 
-        if (!proxy.isEmpty() && (!files.isEmpty() || indexed || filenameGenerator != null)) {
+        if (shouldSave()) {
 
             String filename = getFile(request);
 
             if (filename != null) {
 
-                // todo - save to correct location!
                 File file = new File(path, filename);
 
                 if (!file.exists()) {
@@ -206,34 +195,25 @@ public class Profile {
 
             inputStream = new ByteArrayInputStream(responses.get(index).getBytes(Charsets.UTF_8));
 
-        } else {
+        } else if (!files.isEmpty()) {
 
-            if (!files.isEmpty()) {
+            String filename = getFile(request);
 
-                String filename = getFile(request);
+            LOG.info("path: '{}', filename: '{}'", path, filename);
 
-                if (filename != null) {
-
-                    LOG.info("path: '{}', filename: '{}'", path, filename);
-
-                    if (filename.startsWith("/")) {
-                        //RELATIVE
-                        inputStream = this.getClass().getResourceAsStream(filename);
-                    } else {
-                        //ABSOLUTE
-                        inputStream = Files.newInputStreamSupplier(new File(path, filename)).getInput();
-                    }
-
-                }
+            if (filename.startsWith("/")) {
+                //RELATIVE
+                inputStream = this.getClass().getResourceAsStream(filename);
+            } else {
+                //ABSOLUTE
+                inputStream = Files.newInputStreamSupplier(new File(path, filename)).getInput();
             }
         }
         return inputStream;
     }
 
 
-    public InputSupplier<? extends InputStream> applyReplacements(InputStream inputStream) throws IOException {
-        return replace(inputStream);
-    }
+
 
 
     public void configureHttpHeaders(HttpServletResponse httpServletResponse) {
@@ -250,24 +230,37 @@ public class Profile {
     }
 
 
-    private InputSupplier<? extends InputStream> replace(InputStream inputStream) throws IOException {
-        LOG.info("replace: '{}'", replacements);
-        String str = CharStreams.toString(new InputStreamReader(inputStream, Charsets.UTF_8));
-        for (String from : replacements.keySet()) {
-            String to = replacements.get(from);
-            LOG.info("replace '" + from + "' with '" + to + "'");
-            str = str.replaceAll(from, to);
-        }
-        return ByteStreams.newInputStreamSupplier(str.getBytes("UTF-8"));
+    public String getFile(HttpServletRequest request) {
+        return filenameGenerator.generate(request, this);
+    }
+
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("proxy", proxy)
+                .add("contentTypes", contentTypes)
+                .add("statusCodes", statusCodes)
+                .add("cookies", cookies)
+                .add("responses", responses)
+                .add("files", files)
+                .add("indexed", indexed)
+                .add("replacements", replacements)
+                .add("filenameGenerator", filenameGenerator)
+                .add("path", path)
+                .add("index", index)
+                .toString();
     }
 
 
     //..................................................................................................................
 
 
-    public String getFile(HttpServletRequest request) {
-        return filenameGenerator.generate(request, this);
+
+    private boolean shouldSave() {
+        return !proxy.isEmpty() && (!files.isEmpty() || indexed || filenameGenerator != null);
     }
+
 
 
     private List<Cookie> createCookies(String cookieString) {
@@ -298,8 +291,6 @@ public class Profile {
         }
         return httpCookies;
     }
-
-
 
 
     private int getStatusCode() {

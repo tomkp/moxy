@@ -4,8 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.InputSupplier;
 import com.tomkp.moxy.RequestHandler;
 import com.tomkp.moxy.Requests;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.tomkp.moxy.helpers.Replacer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,14 +14,13 @@ import java.io.InputStream;
 public class ProfileRequestHandler implements RequestHandler {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(ProfileRequestHandler.class);
-
-
     private final Profile profile;
+    private final Replacer replacer;
 
 
-    public ProfileRequestHandler(Profile profile) {
+    public ProfileRequestHandler(Profile profile, Replacer replacer) {
         this.profile = profile;
+        this.replacer = replacer;
         Requests.reset();
     }
 
@@ -41,13 +39,12 @@ public class ProfileRequestHandler implements RequestHandler {
             if (inputStream != null) {
 
                 // APPLY REPLACEMENTS
-                InputSupplier<? extends InputStream> inputSupplier = profile.applyReplacements(inputStream);
+                InputSupplier<? extends InputStream> inputSupplier = replacer.replace(profile.getReplacements(), inputStream);
 
                 // WRITE RESPONSE
                 writeResponse(httpServletResponse, inputSupplier);
 
                 profile.saveResponses(httpServletRequest, inputSupplier);
-
             }
             profile.increment();
 

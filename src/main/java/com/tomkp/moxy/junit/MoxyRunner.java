@@ -1,6 +1,7 @@
 package com.tomkp.moxy.junit;
 
 import com.tomkp.moxy.MoxyTestRunner;
+import com.tomkp.moxy.helpers.Replacer;
 import com.tomkp.moxy.jetty.EmbeddedJetty;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -16,6 +17,7 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
 
 
     private final EmbeddedJetty moxyHttpServer = new EmbeddedJetty();
+    private final Replacer replacer = new Replacer();
 
 
     private Class<?> testClass;
@@ -32,7 +34,7 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
         long start = System.currentTimeMillis();
         LOG.info(testClass + "." + method.getName() + "");
 
-        MoxyTestRunner runner = new MoxyTestRunner(moxyHttpServer);
+        MoxyTestRunner runner = new MoxyTestRunner(moxyHttpServer, replacer);
         runner.initialise(testClass, method.getMethod());
 
         super.runChild(method, notifier);

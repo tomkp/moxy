@@ -2,6 +2,7 @@ package com.tomkp.moxy;
 
 import com.tomkp.moxy.annotations.Moxy;
 import com.tomkp.moxy.filenames.FilenameGenerator;
+import com.tomkp.moxy.helpers.Replacer;
 import com.tomkp.moxy.profile.Profile;
 import com.tomkp.moxy.profile.ProfileRequestHandler;
 
@@ -9,11 +10,13 @@ import java.lang.reflect.Method;
 
 public class MoxyTestRunner {
 
-    private MoxyHttpServer moxyHttpServer;
+    private final Replacer replacer;
+    private final MoxyHttpServer moxyHttpServer;
 
 
-    public MoxyTestRunner(MoxyHttpServer moxyHttpServer) {
+    public MoxyTestRunner(MoxyHttpServer moxyHttpServer, Replacer replacer) {
         this.moxyHttpServer = moxyHttpServer;
+        this.replacer = replacer;
     }
 
 
@@ -35,7 +38,7 @@ public class MoxyTestRunner {
                     ;
 
             int port = moxy.port();
-            RequestHandler handler = new ProfileRequestHandler(profile);
+            RequestHandler handler = new ProfileRequestHandler(profile, replacer);
             moxyHttpServer.start(port, handler);
 
         }
