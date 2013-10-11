@@ -13,7 +13,7 @@ public class AbsoluteFileResponse  implements Response {
     @Override
     public InputStream getResponse(TestSession testSession, HttpServletRequest request) throws IOException {
         // ABSOLUTE FILES
-        String filename = testSession.getFilename();
+        String filename = testSession.getFilename(request);
         File file = new File(testSession.getPath(), filename);
         return Files.newInputStreamSupplier(file).getInput();
     }

@@ -1,6 +1,6 @@
 package com.tomkp.moxy.jetty;
 
-import com.tomkp.moxy.MoxyRequestHandler;
+import com.tomkp.moxy.RequestHandler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
@@ -12,10 +12,10 @@ import java.io.IOException;
 public class JettyRequestHandler extends AbstractHandler {
 
 
-    private MoxyRequestHandler moxyRequestHandler;
+    private RequestHandler moxyRequestHandler;
 
 
-    public JettyRequestHandler(MoxyRequestHandler moxyRequestHandler) {
+    public JettyRequestHandler(RequestHandler moxyRequestHandler) {
         this.moxyRequestHandler = moxyRequestHandler;
     }
 

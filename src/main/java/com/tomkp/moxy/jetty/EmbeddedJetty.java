@@ -1,7 +1,7 @@
 package com.tomkp.moxy.jetty;
 
 import com.tomkp.moxy.MoxyHttpServer;
-import com.tomkp.moxy.MoxyRequestHandler;
+import com.tomkp.moxy.RequestHandler;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class EmbeddedJetty implements MoxyHttpServer {
     private Server server;
 
 
-    public void start(int port, MoxyRequestHandler handler) {
+    public void start(int port, RequestHandler handler) {
         LOG.info("start server on port {}", port);
 
         try {

@@ -44,7 +44,7 @@ public class ProxiedResponse  implements Response {
     }
 
 
-    public byte[] write(URL url, byte[] body, String method) throws IOException {
+    private byte[] write(URL url, byte[] body, String method) throws IOException {
         HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
         httpURLConnection.setDoOutput(true);
         httpURLConnection.setRequestMethod(method);
@@ -54,7 +54,7 @@ public class ProxiedResponse  implements Response {
     }
 
 
-    public URL createProxyUrl(HttpServletRequest httpServletRequest, String proxy) throws MalformedURLException {
+    private URL createProxyUrl(HttpServletRequest httpServletRequest, String proxy) throws MalformedURLException {
         String pathInfo = httpServletRequest.getPathInfo();
         LOG.info("pathInfo: '{}'", pathInfo);
         String queryString = httpServletRequest.getQueryString();

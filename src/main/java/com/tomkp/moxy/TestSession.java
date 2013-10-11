@@ -67,7 +67,16 @@ public class TestSession {
     }
 
 
-    public String getFilename() {
+    public String getFilename(HttpServletRequest request) {
+//        try {
+//            if (!moxy.filenameGenerator().equals(NullFilenameGenerator.class)) {
+//                FilenameGenerator filenameGenerator = moxy.filenameGenerator().newInstance();
+//                return filenameGenerator.generate(request);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         String[] files = getFiles();
         boolean indexed = getIndexed();
         String filename;
@@ -137,7 +146,12 @@ public class TestSession {
 
 
     public boolean shouldSaveResponse() {
-        return (useProxiedResponse() && (getFileCount() > 0 || getIndexed()));
+        return (useProxiedResponse() && (getFileCount() > 0 || getIndexed() || useFilenameGenerator()));
+    }
+
+
+    private boolean useFilenameGenerator() {
+        return (moxy.filenameGenerator() != NullFilenameGenerator.class);
     }
 
 
@@ -154,8 +168,8 @@ public class TestSession {
     }
 
 
-    private boolean useRelativeFile() {
-        return hasFiles() && getFilename().startsWith("/");
+    private boolean useRelativeFile(HttpServletRequest request) {
+        return hasFiles() && getFilename(request).startsWith("/");
     }
 
     private boolean useAbsoluteFile() {
@@ -249,7 +263,7 @@ public class TestSession {
 
 
     private boolean hasFiles() {
-        return getFileCount() > index || getIndexed();
+        return getFileCount() > index || getIndexed() || useFilenameGenerator();
     }
 
 
@@ -269,7 +283,7 @@ public class TestSession {
 
             inputStream = new StaticResponse().getResponse(this, httpServletRequest);
 
-        } else if (useRelativeFile()) {
+        } else if (useRelativeFile(httpServletRequest)) {
 
             // RETURN RESPONSES FROM FILES
 

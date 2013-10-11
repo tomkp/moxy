@@ -11,7 +11,7 @@ public class RelativeFileResponse implements Response {
 
     @Override
     public InputStream getResponse(TestSession testSession, HttpServletRequest request) throws IOException {
-        String filename = testSession.getFilename();
+        String filename = testSession.getFilename(request);
         return this.getClass().getResourceAsStream(filename);
     }
 

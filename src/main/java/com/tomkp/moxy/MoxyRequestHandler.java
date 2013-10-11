@@ -15,7 +15,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Map;
 
-public class MoxyRequestHandler {
+public class MoxyRequestHandler implements RequestHandler {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(MoxyRequestHandler.class);
@@ -30,6 +30,7 @@ public class MoxyRequestHandler {
     }
 
 
+    @Override
     public void process(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 
         Requests.capture(httpServletRequest);
@@ -53,7 +54,7 @@ public class MoxyRequestHandler {
 
                     // SAVE RESPONSES TO FILE
 
-                    saveResponses(inputSupplier);
+                    saveResponses(httpServletRequest, inputSupplier);
                 }
             }
 
@@ -70,8 +71,8 @@ public class MoxyRequestHandler {
     }
 
 
-    private void saveResponses(InputSupplier<? extends InputStream> inputSupplier) throws IOException {
-        String filename = testSession.getFilename();
+    private void saveResponses(HttpServletRequest request, InputSupplier<? extends InputStream> inputSupplier) throws IOException {
+        String filename = testSession.getFilename(request);
 
         File file = new File(testSession.getPath(), filename);
         if (!file.exists()) {
