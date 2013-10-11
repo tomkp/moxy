@@ -1,6 +1,7 @@
 package com.tomkp.moxy;
 
 import com.tomkp.moxy.annotations.Moxy;
+import com.tomkp.moxy.filenames.FilenameGenerator;
 import com.tomkp.moxy.profile.Profile;
 import com.tomkp.moxy.profile.ProfileRequestHandler;
 
@@ -22,12 +23,6 @@ public class MoxyTestRunner {
         Moxy moxy = method.getAnnotation(Moxy.class);
         if (moxy != null) {
             String path = testClass.getResource(".").getPath();
-            /*TestSession testSession = testSessionFactory.createTestSession(moxy, path);
-            if (testSession != null) {
-                int port = testSession.getPort();
-                MoxyRequestHandler handler = new MoxyRequestHandler(testSession);
-                moxyHttpServer.start(port, handler);
-            }*/
 
             Profile profile = new Profile(path)
                     .setContentTypes(moxy.contentType())
@@ -38,7 +33,9 @@ public class MoxyTestRunner {
                     .setProxy(moxy.proxy())
                     .setResponses(moxy.response())
                     .setStatusCodes(moxy.statusCode())
-                    .setReplacements(moxy.replace());
+                    .setReplacements(moxy.replace())
+                    .setFilenameGenerator(getFilenameGenerator(moxy.filenameGenerator()));
+                    ;
 
             int port = moxy.port();
             RequestHandler handler = new ProfileRequestHandler(profile);
@@ -48,8 +45,18 @@ public class MoxyTestRunner {
     }
 
 
+
+
     public void end() {
         moxyHttpServer.stop();
     }
 
+
+    private FilenameGenerator getFilenameGenerator(Class<? extends FilenameGenerator> aClass) {
+        try {
+            return aClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("unable to instantiate new instance of '" + aClass + "'", e);
+        }
+    }
 }

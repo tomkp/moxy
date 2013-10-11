@@ -3,7 +3,7 @@ package com.tomkp.moxy.profile;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.io.*;
-import com.tomkp.moxy.FilenameGenerator;
+import com.tomkp.moxy.filenames.FilenameGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +23,7 @@ public class Profile {
 
     private static final int DEFAULT_STATUS = 200;
     private static final String DEFAULT_CONTENT_TYPE = "text/plain";
-    //private static final int DEFAULT_PORT = 9001;
 
-    //private int port = DEFAULT_PORT;
     private String proxy = "";
     private List<String> contentTypes = new ArrayList<>();
     private List<Integer> statusCodes = new ArrayList<>();
@@ -74,14 +72,14 @@ public class Profile {
     }
 
 
-//    public Profile setPort(int port) {
-//        this.port = port;
-//        return this;
-//    }
-
-
     public Profile setProxy(String proxy) {
         this.proxy = proxy;
+        return this;
+    }
+
+
+    public Profile setFilenameGenerator(FilenameGenerator filenameGenerator) {
+        this.filenameGenerator = filenameGenerator;
         return this;
     }
 
@@ -115,14 +113,36 @@ public class Profile {
     }
 
 
-    public void setFilenameGenerator(FilenameGenerator filenameGenerator) {
-        this.filenameGenerator = filenameGenerator;
+    public List<String> getFiles() {
+        return files;
     }
+
+    public boolean isIndexed() {
+        return indexed;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public String getContentType() {
+        String contentType;
+        if (contentTypes.size() > 1) {
+            contentType = contentTypes.get(index);
+        } else if (contentTypes.size() == 1) {
+            contentType = contentTypes.get(0);
+        } else {
+            contentType = DEFAULT_CONTENT_TYPE;
+        }
+        LOG.info("contentType: '{}'", contentType);
+        return contentType;
+    }
+
+
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                //.add("port", port)
                 .add("proxy", proxy)
                 .add("contentTypes", contentTypes)
                 .add("statusCodes", statusCodes)
@@ -145,6 +165,7 @@ public class Profile {
             String filename = getFile(request);
 
             if (filename != null) {
+
                 // todo - save to correct location!
                 File file = new File(path, filename);
 
@@ -157,6 +178,7 @@ public class Profile {
             }
         }
     }
+
 
 
     public InputStream generateResponse(HttpServletRequest request) throws IOException {
@@ -218,7 +240,7 @@ public class Profile {
         int statusCode = getStatusCode();
         httpServletResponse.setStatus(statusCode);
 
-        String contentType = getContentTypes();
+        String contentType = getContentType();
         httpServletResponse.setContentType(contentType);
 
         List<Cookie> httpCookies = getCookies();
@@ -244,24 +266,7 @@ public class Profile {
 
 
     public String getFile(HttpServletRequest request) {
-
-        if (filenameGenerator != null) {
-
-            return filenameGenerator.generate(request);
-
-        } else {
-            String filename = null;
-            if (files.size() == 1) {
-                filename = files.get(0);
-            } else if (!files.isEmpty()) {
-                filename = files.get(index);
-            }
-
-            if (indexed) {
-                filename = filename.replaceAll("\\$", String.valueOf(index + 1));
-            }
-            return filename;
-        }
+        return filenameGenerator.generate(request, this);
     }
 
 
@@ -295,18 +300,6 @@ public class Profile {
     }
 
 
-    private String getContentTypes() {
-        String contentType;
-        if (contentTypes.size() > 1) {
-            contentType = contentTypes.get(index);
-        } else if (contentTypes.size() == 1) {
-            contentType = contentTypes.get(0);
-        } else {
-            contentType = DEFAULT_CONTENT_TYPE;
-        }
-        LOG.info("contentType: '{}'", contentType);
-        return contentType;
-    }
 
 
     private int getStatusCode() {

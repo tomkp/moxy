@@ -1,6 +1,7 @@
 package com.tomkp.moxy;
 
 import com.tomkp.moxy.annotations.Moxy;
+import com.tomkp.moxy.filenames.DefaultFilenameGenerator;
 import com.tomkp.moxy.responses.AbsoluteFileResponse;
 import com.tomkp.moxy.responses.ProxiedResponse;
 import com.tomkp.moxy.responses.RelativeFileResponse;
@@ -69,7 +70,7 @@ public class TestSession {
 
     public String getFilename(HttpServletRequest request) {
 //        try {
-//            if (!moxy.filenameGenerator().equals(NullFilenameGenerator.class)) {
+//            if (!moxy.filenameGenerator().equals(DefaultFilenameGenerator.class)) {
 //                FilenameGenerator filenameGenerator = moxy.filenameGenerator().newInstance();
 //                return filenameGenerator.generate(request);
 //            }
@@ -151,7 +152,7 @@ public class TestSession {
 
 
     private boolean useFilenameGenerator() {
-        return (moxy.filenameGenerator() != NullFilenameGenerator.class);
+        return (moxy.filenameGenerator() != DefaultFilenameGenerator.class);
     }
 
 

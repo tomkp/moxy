@@ -1,7 +1,7 @@
 package com.tomkp.moxy.annotations;
 
-import com.tomkp.moxy.FilenameGenerator;
-import com.tomkp.moxy.NullFilenameGenerator;
+import com.tomkp.moxy.filenames.DefaultFilenameGenerator;
+import com.tomkp.moxy.filenames.FilenameGenerator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -30,5 +30,5 @@ public @interface Moxy {
 
     String[] replace() default {};
 
-    Class<? extends FilenameGenerator> filenameGenerator() default NullFilenameGenerator.class;
+    Class<? extends FilenameGenerator> filenameGenerator() default DefaultFilenameGenerator.class;
 }

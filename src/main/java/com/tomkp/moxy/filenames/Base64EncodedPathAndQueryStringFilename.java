@@ -1,7 +1,8 @@
-package com.tomkp.moxy;
+package com.tomkp.moxy.filenames;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.BaseEncoding;
+import com.tomkp.moxy.profile.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +13,7 @@ public class Base64EncodedPathAndQueryStringFilename implements FilenameGenerato
     private static final Logger LOG = LoggerFactory.getLogger(Base64EncodedPathAndQueryStringFilename.class);
 
     @Override
-    public String generate(HttpServletRequest request) {
+    public String generate(HttpServletRequest request, Profile profile) {
         String pathInfo = request.getPathInfo();
         String queryString = request.getQueryString();
         LOG.info("pathInfo = " + pathInfo);
