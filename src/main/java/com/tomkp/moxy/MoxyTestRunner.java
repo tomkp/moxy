@@ -10,12 +10,10 @@ import java.lang.reflect.Method;
 public class MoxyTestRunner {
 
     private MoxyHttpServer moxyHttpServer;
-    private TestSessionFactory testSessionFactory;
 
 
-    public MoxyTestRunner(MoxyHttpServer moxyHttpServer, TestSessionFactory testSessionFactory) {
+    public MoxyTestRunner(MoxyHttpServer moxyHttpServer) {
         this.moxyHttpServer = moxyHttpServer;
-        this.testSessionFactory = testSessionFactory;
     }
 
 
@@ -29,7 +27,6 @@ public class MoxyTestRunner {
                     .setCookies(moxy.cookie())
                     .setFiles(moxy.file())
                     .setIndexed(moxy.indexed())
-                    //.setPort(moxy.port())
                     .setProxy(moxy.proxy())
                     .setResponses(moxy.response())
                     .setStatusCodes(moxy.statusCode())

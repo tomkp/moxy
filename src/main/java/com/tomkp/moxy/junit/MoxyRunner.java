@@ -1,7 +1,6 @@
 package com.tomkp.moxy.junit;
 
 import com.tomkp.moxy.MoxyTestRunner;
-import com.tomkp.moxy.TestSessionFactory;
 import com.tomkp.moxy.jetty.EmbeddedJetty;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -17,7 +16,6 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
 
 
     private final EmbeddedJetty moxyHttpServer = new EmbeddedJetty();
-    private final TestSessionFactory testSessionFactory = new TestSessionFactory();
 
 
     private Class<?> testClass;
@@ -34,7 +32,7 @@ public class MoxyRunner extends BlockJUnit4ClassRunner {
         long start = System.currentTimeMillis();
         LOG.info(testClass + "." + method.getName() + "");
 
-        MoxyTestRunner runner = new MoxyTestRunner(moxyHttpServer, testSessionFactory);
+        MoxyTestRunner runner = new MoxyTestRunner(moxyHttpServer);
         runner.initialise(testClass, method.getMethod());
 
         super.runChild(method, notifier);
