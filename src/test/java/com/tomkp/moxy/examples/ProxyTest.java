@@ -60,11 +60,11 @@ public class ProxyTest {
 
 
     @Test
-    @Moxy(proxy = "http://www.apple.com")
+    @Moxy(proxy = "https://status.github.com")
     public void proxyWithQueryString() throws Exception {
-        URL url = new URL("http://localhost:9001/search/?q=ipod");
+        URL url = new URL("http://localhost:9001/api.json?x=1.json");
         String response = Resources.toString(url, Charset.forName("UTF-8"));
-        assertTrue(response.contains("Search Results"));
+        assertTrue(response.contains("https://status.github.com/api/status.json"));
     }
 
 
